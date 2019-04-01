@@ -40,6 +40,7 @@ dev_dependencies:
   circular_check_box: ^0.0.2
   flutter_range_slider: ^1.1.0
   flutter_xlider: ^2.2.1
+  datetime_picker_formfield: ^0.1.8
 
 
 # For information on the generic Dart part of this file, see the

@@ -6,8 +6,10 @@ import 'dart:async';
 import 'package:flutter_google_places/flutter_google_places.dart';
 import 'package:google_maps_webservice/places.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:intl/intl.dart';
 import 'package:ncr_hachathon/home.dart';
 import 'package:ncr_hachathon/main.dart';
+import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 
 class Home extends StatefulWidget {
   _HomeState createState() => _HomeState();
@@ -137,6 +139,26 @@ class _HomeState extends State<Home> {
               }),
         ),
       );
+    } else {
+      list.add(
+        Align(
+          alignment: Alignment.topLeft,
+          child: SizedBox(
+            height: 200,
+            child: CachedNetworkImage(
+              imageUrl: '',
+              placeholder: (context, url) => Icon(
+                    FontAwesomeIcons.building,
+                    size: 70.0,
+                  ),
+              errorWidget: (context, url, error) => Icon(
+                    FontAwesomeIcons.building,
+                    size: 70.0,
+                  ),
+            ),
+          ),
+        ),
+      );
     }
 
     list.add(
@@ -221,6 +243,79 @@ class _HomeState extends State<Home> {
       );
     }
 
+    list.add(SizedBox(height: 10.0));
+
+    list.add(
+      Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Align(
+          alignment: Alignment.bottomCenter,
+          child: Row(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: <Widget>[
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => BookDelivery(),
+                        fullscreenDialog: true,
+                      ));
+                },
+                child: Container(
+                  height: 150.0,
+                  width: 150.0,
+                  color: Colors.red,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    mainAxisSize: MainAxisSize.max,
+                    children: <Widget>[
+                      Text(
+                        'Book Delivery',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 20.0,
+                        ),
+                      ),
+                      Icon(
+                        FontAwesomeIcons.shippingFast,
+                        color: Colors.white,
+                        size: 40.0,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              Container(
+                height: 150.0,
+                width: 150.0,
+                color: Colors.red,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  mainAxisSize: MainAxisSize.max,
+                  children: <Widget>[
+                    Text(
+                      'Instant Delivery',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20.0,
+                      ),
+                    ),
+                    Icon(
+                      FontAwesomeIcons.stopwatch,
+                      color: Colors.white,
+                      size: 40.0,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+
     showModalBottomSheet(
         context: context,
         builder: (BuildContext context) {
@@ -289,6 +384,7 @@ class _HomeState extends State<Home> {
                             color: Colors.black,
                           ),
                           onPressed: () async {
+                            // ignore: unused_local_variable
                             Prediction p = await PlacesAutocomplete.show(
                                 context: context,
                                 apiKey: kGoogleApiKey,
@@ -386,6 +482,151 @@ class _MyIcelandState extends State<MyIceland> {
                       ),
                     ),
                   ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class BookDelivery extends StatefulWidget {
+  @override
+  _BookDeliveryState createState() => _BookDeliveryState();
+}
+
+class _BookDeliveryState extends State<BookDelivery> {
+  final formats = {
+    InputType.both: DateFormat("EEEE, MMMM d, yyyy 'at' h:mma"),
+    InputType.date: DateFormat('yyyy-MM-dd'),
+    InputType.time: DateFormat("HH:mm"),
+  };
+
+  // Changeable in demo
+  InputType inputType = InputType.both;
+  bool editable = true;
+  DateTime date;
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0.0,
+        iconTheme: IconThemeData(color: Colors.black),
+      ),
+      body: Column(
+        mainAxisSize: MainAxisSize.max,
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: <Widget>[
+          Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Text(
+                  'BOOK DELIVERY',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 25.0,
+                  ),
+                ),
+                SizedBox(height: 8.0),
+                Text(
+                  'Address:',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 18.0,
+                  ),
+                ),
+                SizedBox(height: 8.0),
+                Text(
+                  'Kingdom House, NW2 9S2',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 18.0,
+                  ),
+                ),
+                SizedBox(height: 8.0),
+                Icon(FontAwesomeIcons.edit),
+                SizedBox(height: 8.0),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(18.0),
+            child: DateTimePickerFormField(
+              inputType: InputType.both,
+              format: formats[inputType],
+              editable: editable,
+              decoration: InputDecoration(
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(25.0),
+                ),
+                labelText: 'Select Date and Time',
+                hasFloatingPlaceholder: false,
+              ),
+              onChanged: (dt) => setState(() => date = dt),
+            ),
+          ),
+          SizedBox(height: 8.0),
+          Container(
+            height: 300.0,
+            width: 350.0,
+            child: Card(
+              color: Colors.white,
+              elevation: 8.0,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  'Please remember to checkout your order before the scheduled time to confirm your delivery slot. Reserving a delivery slot does not guarantee a delivery time - all orders must be checked out in order to confirm delivery.\n\n\n\n\n *Wording to be updated and consistent with online(web) experience.',
+                  style: TextStyle(fontSize: 18.0),
+                ),
+              ),
+            ),
+          ),
+          Expanded(
+            child: Align(
+              alignment: Alignment.bottomCenter,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: <Widget>[
+                    Container(
+                      decoration: BoxDecoration(
+                          color: Colors.blue,
+                          shape: BoxShape.rectangle,
+                          borderRadius: BorderRadius.circular(30.0)),
+                      width: MediaQuery.of(context).size.width - 50.0,
+                      height: 60.0,
+                      child: Center(
+                        child: Text(
+                          'CONFIRM',
+                          style: TextStyle(color: Colors.white, fontSize: 20.0),
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 8.0),
+                    Container(
+                      decoration: BoxDecoration(
+                          color: Colors.red,
+                          shape: BoxShape.rectangle,
+                          borderRadius: BorderRadius.circular(30.0)),
+                      width: MediaQuery.of(context).size.width - 50.0,
+                      height: 60.0,
+                      child: Center(
+                        child: Text(
+                          'SKIP DELIVERY',
+                          style: TextStyle(color: Colors.white, fontSize: 20.0),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
