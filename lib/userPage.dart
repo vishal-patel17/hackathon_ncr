@@ -74,8 +74,8 @@ class _HomeState extends State<Home> {
 
   _getNearbyPlaces() async {
     final location = Location(_center.latitude, _center.longitude);
-    final result =
-        await _places.searchNearbyWithRadius(location, 5000, type: 'store');
+    final result = await _places.searchNearbyWithRadius(location, 5000,
+        name: 'metro', type: 'store');
     setState(() {
       if (result.status == "OK") {
         this.places = result.results;
@@ -255,7 +255,7 @@ class _HomeState extends State<Home> {
                   markers: _markers,
                   initialCameraPosition: CameraPosition(
                     target: _center,
-                    zoom: 17.0,
+                    zoom: 13.0,
                   ),
                 ),
                 Align(
@@ -268,8 +268,11 @@ class _HomeState extends State<Home> {
                       children: <Widget>[
                         FloatingActionButton(
                           heroTag: 'home',
-                          backgroundColor: Colors.red[700],
-                          child: Icon(FontAwesomeIcons.home),
+                          backgroundColor: Colors.white,
+                          child: Icon(
+                            FontAwesomeIcons.home,
+                            color: Colors.black,
+                          ),
                           onPressed: () {
                             Navigator.push(
                               context,
@@ -280,7 +283,7 @@ class _HomeState extends State<Home> {
                         ),
                         SizedBox(height: 8.0),
                         FloatingActionButton(
-                          backgroundColor: Colors.red[700],
+                          backgroundColor: Colors.white,
                           child: Icon(
                             FontAwesomeIcons.search,
                             color: Colors.black,
@@ -319,7 +322,7 @@ class _MyIcelandState extends State<MyIceland> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.red,
-        title: Text('My Iceland'),
+        title: Text('My Store'),
         centerTitle: true,
       ),
       body: Column(

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:circular_check_box/circular_check_box.dart';
+import 'package:flutter_xlider/flutter_xlider.dart';
 
 class ShoppingList extends StatefulWidget {
   @override
@@ -11,6 +12,10 @@ class ShoppingList extends StatefulWidget {
 class _ShoppingListState extends State<ShoppingList> {
   String _listName;
   bool _checkalue = false;
+
+  var _lowerValue = 200.0;
+  var _lowerWeekValue = 250.0;
+  var _lowerMonthValue = 350.0;
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
@@ -32,7 +37,7 @@ class _ShoppingListState extends State<ShoppingList> {
           ),
         ),
         body: TabBarView(children: [
-          // List tab
+          // List page
           Column(
             mainAxisSize: MainAxisSize.max,
             children: <Widget>[
@@ -210,9 +215,159 @@ class _ShoppingListState extends State<ShoppingList> {
             ],
           ),
           // Budgeting page
-          Center(
-            child: Text("Page 2"),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.max,
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 50.0),
+                  child: Column(
+                    children: <Widget>[
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        mainAxisSize: MainAxisSize.max,
+                        children: <Widget>[
+                          Text('BY SHOP'),
+                          Text(_lowerValue.toString()),
+                        ],
+                      ),
+                      FlutterSlider(
+                        handler: FlutterSliderHandler(
+                          child: Material(
+                            type: MaterialType.circle,
+                            color: Colors.green,
+                            elevation: 1.0,
+                            child: Container(
+                              padding: EdgeInsets.all(5),
+                              child: Icon(
+                                FontAwesomeIcons.slidersH,
+                                color: Colors.black,
+                                size: 25,
+                              ),
+                            ),
+                          ),
+                        ),
+                        values: [200],
+                        max: 500,
+                        min: 0,
+                        onDragging: (handlerIndex, lowerValue, upperValue) {
+                          _lowerValue = lowerValue;
+                          var _upperValue = upperValue;
+                          setState(() {});
+                        },
+                      )
+                    ],
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  children: <Widget>[
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      mainAxisSize: MainAxisSize.max,
+                      children: <Widget>[
+                        Text('BY WEEK'),
+                        Text(_lowerWeekValue.toString()),
+                      ],
+                    ),
+                    FlutterSlider(
+                      handler: FlutterSliderHandler(
+                        child: Material(
+                          type: MaterialType.circle,
+                          color: Colors.green,
+                          elevation: 1.0,
+                          child: Container(
+                            padding: EdgeInsets.all(5),
+                            child: Icon(
+                              FontAwesomeIcons.slidersH,
+                              color: Colors.black,
+                              size: 25,
+                            ),
+                          ),
+                        ),
+                      ),
+                      values: [250],
+                      max: 500,
+                      min: 0,
+                      onDragging: (handlerIndex, lowerValue, upperValue) {
+                        _lowerWeekValue = lowerValue;
+                        var _upperValue = upperValue;
+                        setState(() {});
+                      },
+                    )
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  children: <Widget>[
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      mainAxisSize: MainAxisSize.max,
+                      children: <Widget>[
+                        Text('BY MONTH'),
+                        Text(_lowerMonthValue.toString()),
+                      ],
+                    ),
+                    FlutterSlider(
+                      handler: FlutterSliderHandler(
+                        child: Material(
+                          type: MaterialType.circle,
+                          color: Colors.green,
+                          elevation: 1.0,
+                          child: Container(
+                            padding: EdgeInsets.all(5),
+                            child: Icon(
+                              FontAwesomeIcons.slidersH,
+                              color: Colors.black,
+                              size: 25,
+                            ),
+                          ),
+                        ),
+                      ),
+                      values: [350],
+                      max: 500,
+                      min: 0,
+                      onDragging: (handlerIndex, lowerValue, upperValue) {
+                        _lowerMonthValue = lowerValue;
+                        var _upperValue = upperValue;
+                        setState(() {});
+                      },
+                    )
+                  ],
+                ),
+              ),
+              Expanded(
+                child: Align(
+                  alignment: Alignment.bottomCenter,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Container(
+                      decoration: BoxDecoration(
+                          color: Colors.blue,
+                          shape: BoxShape.rectangle,
+                          borderRadius: BorderRadius.circular(30.0)),
+                      width: MediaQuery.of(context).size.width - 50.0,
+                      height: 60.0,
+                      child: Center(
+                        child: Text(
+                          'SAVE',
+                          style: TextStyle(color: Colors.white, fontSize: 20.0),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
+          // Cart Page
           Center(
             child: Text("Page 3"),
           ),

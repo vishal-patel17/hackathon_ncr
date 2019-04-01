@@ -39,6 +39,7 @@ dev_dependencies:
   cloud_firestore: ^0.9.7+2
   circular_check_box: ^0.0.2
   flutter_range_slider: ^1.1.0
+  flutter_xlider: ^2.2.1
 
 
 # For information on the generic Dart part of this file, see the

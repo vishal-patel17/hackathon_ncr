@@ -10,11 +10,11 @@ class Receipes extends StatefulWidget {
 class _ReceipesState extends State<Receipes> {
   List<Image> _images = [
     Image.asset(
-      'assets/food1.jpg',
+      'assets/food2.jpg',
       fit: BoxFit.cover,
     ),
     Image.asset(
-      'assets/food2.jpg',
+      'assets/food1.jpg',
       fit: BoxFit.cover,
     ),
     Image.asset(
@@ -25,11 +25,11 @@ class _ReceipesState extends State<Receipes> {
 
   List<Text> _foodNames = [
     Text(
-      'Chicken',
+      'Pizza',
       style: TextStyle(color: Colors.black),
     ),
     Text(
-      'Pizza',
+      'Chicken',
       style: TextStyle(color: Colors.black),
     ),
     Text(
@@ -106,6 +106,8 @@ class _ReceipesState extends State<Receipes> {
         padding: EdgeInsets.all(8.0),
         children: <Widget>[
           CarouselSlider(
+            autoPlay: true,
+            autoPlayAnimationDuration: Duration(seconds: 1),
             height: 200.0,
             items: [1, 2, 3].map((i) {
               return Builder(

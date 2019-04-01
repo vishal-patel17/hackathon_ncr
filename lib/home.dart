@@ -43,7 +43,7 @@ class _UserHomePageState extends State<UserHomePage> {
           ),
           BottomNavigationBarItem(
             icon: Icon(FontAwesomeIcons.userCircle),
-            title: Text('My Iceland'),
+            title: Text('My Store'),
           )
         ],
       ),
