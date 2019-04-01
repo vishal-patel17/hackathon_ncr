@@ -1,0 +1,112 @@
+import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:carousel_slider/carousel_slider.dart';
+
+class Receipes extends StatefulWidget {
+  @override
+  _ReceipesState createState() => _ReceipesState();
+}
+
+class _ReceipesState extends State<Receipes> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.red,
+        title: Padding(
+          padding: const EdgeInsets.all(5.0),
+          child: Container(
+            padding: EdgeInsets.all(8.0),
+            decoration: BoxDecoration(
+              shape: BoxShape.rectangle,
+              borderRadius: BorderRadius.circular(20.0),
+              color: Colors.red[900],
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.max,
+              children: <Widget>[
+                Icon(FontAwesomeIcons.search),
+                SizedBox(width: 8.0),
+                Text(
+                  'Search',
+                  style: TextStyle(color: Colors.grey),
+                ),
+                Expanded(
+                  child: Align(
+                    alignment: Alignment.centerRight,
+                    child: IconButton(
+                        icon: Icon(FontAwesomeIcons.microphone),
+                        onPressed: () {}),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        actions: <Widget>[
+          Stack(
+            children: <Widget>[
+              IconButton(
+                  icon: Icon(
+                    FontAwesomeIcons.shoppingCart,
+                    size: 27.0,
+                  ),
+                  onPressed: () {}),
+              Positioned(
+                top: 2.0,
+                right: 4.0,
+                child: Container(
+                  width: 15.0,
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(40.0),
+//                    shape: BoxShape.circle,
+                      color: Colors.yellow),
+                  child: Center(
+                    child: Text(
+                      '0',
+                      style: TextStyle(color: Colors.black, fontSize: 15.0),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+      body: ListView(
+        padding: EdgeInsets.all(8.0),
+        children: <Widget>[
+          Stack(
+            children: <Widget>[
+              CarouselSlider(
+                height: 200.0,
+                items: [1, 2, 3].map((i) {
+                  return Builder(
+                    builder: (BuildContext context) {
+                      return Container(
+                        width: MediaQuery.of(context).size.width,
+                        margin: EdgeInsets.symmetric(horizontal: 5.0),
+                        decoration: BoxDecoration(color: Colors.amber),
+                        child: Text(
+                          'Image $i',
+                          style: TextStyle(fontSize: 16.0),
+                        ),
+                      );
+                    },
+                  );
+                }).toList(),
+              ),
+            ],
+          ),
+          SizedBox(height: 8.0),
+          Center(
+            child: Text(
+              'Recommended for You',
+              style: TextStyle(fontSize: 20.0, color: Colors.black54),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
