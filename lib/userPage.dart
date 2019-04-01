@@ -6,6 +6,8 @@ import 'dart:async';
 import 'package:flutter_google_places/flutter_google_places.dart';
 import 'package:google_maps_webservice/places.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:ncr_hachathon/home.dart';
+import 'package:ncr_hachathon/main.dart';
 
 class Home extends StatefulWidget {
   _HomeState createState() => _HomeState();
@@ -265,6 +267,19 @@ class _HomeState extends State<Home> {
                       mainAxisSize: MainAxisSize.max,
                       children: <Widget>[
                         FloatingActionButton(
+                          heroTag: 'home',
+                          backgroundColor: Colors.red[700],
+                          child: Icon(FontAwesomeIcons.home),
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => UserHomePage()),
+                            );
+                          },
+                        ),
+                        SizedBox(height: 8.0),
+                        FloatingActionButton(
                           backgroundColor: Colors.red[700],
                           child: Icon(
                             FontAwesomeIcons.search,
@@ -347,61 +362,27 @@ class _MyIcelandState extends State<MyIceland> {
               alignment: Alignment.bottomCenter,
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  mainAxisSize: MainAxisSize.max,
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: <Widget>[
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => Home()),
-                        );
-                      },
-                      child: Container(
-                        height: 150.0,
-                        width: 150.0,
-                        color: Colors.red[800],
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: <Widget>[
-                            Icon(
-                              FontAwesomeIcons.mapMarkerAlt,
-                              color: Colors.white,
-                              size: 40.0,
-                            ),
-                            Text(
-                              'Store Locator',
-                              style: TextStyle(
-                                  color: Colors.white, fontSize: 20.0),
-                            ),
-                          ],
-                        ),
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => MyHomePage()),
+                    );
+                  },
+                  child: Container(
+                    decoration: BoxDecoration(
+                        color: Colors.blue,
+                        shape: BoxShape.rectangle,
+                        borderRadius: BorderRadius.circular(30.0)),
+                    width: MediaQuery.of(context).size.width - 50.0,
+                    height: 60.0,
+                    child: Center(
+                      child: Text(
+                        'LOGOUT',
+                        style: TextStyle(color: Colors.white, fontSize: 20.0),
                       ),
                     ),
-                    Container(
-                      height: 150.0,
-                      width: 150.0,
-                      color: Colors.red[800],
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: <Widget>[
-                          Icon(
-                            FontAwesomeIcons.bookOpen,
-                            color: Colors.white,
-                            size: 40.0,
-                          ),
-                          Text(
-                            'How to use',
-                            style:
-                                TextStyle(color: Colors.white, fontSize: 20.0),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ),
             ),

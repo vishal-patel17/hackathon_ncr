@@ -8,6 +8,35 @@ class Receipes extends StatefulWidget {
 }
 
 class _ReceipesState extends State<Receipes> {
+  List<Image> _images = [
+    Image.asset(
+      'assets/food1.jpg',
+      fit: BoxFit.cover,
+    ),
+    Image.asset(
+      'assets/food2.jpg',
+      fit: BoxFit.cover,
+    ),
+    Image.asset(
+      'assets/food3.jpg',
+      fit: BoxFit.cover,
+    ),
+  ];
+
+  List<Text> _foodNames = [
+    Text(
+      'Chicken',
+      style: TextStyle(color: Colors.black),
+    ),
+    Text(
+      'Pizza',
+      style: TextStyle(color: Colors.black),
+    ),
+    Text(
+      'Burger',
+      style: TextStyle(color: Colors.black),
+    ),
+  ];
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -76,27 +105,28 @@ class _ReceipesState extends State<Receipes> {
       body: ListView(
         padding: EdgeInsets.all(8.0),
         children: <Widget>[
-          Stack(
-            children: <Widget>[
-              CarouselSlider(
-                height: 200.0,
-                items: [1, 2, 3].map((i) {
-                  return Builder(
-                    builder: (BuildContext context) {
-                      return Container(
+          CarouselSlider(
+            height: 200.0,
+            items: [1, 2, 3].map((i) {
+              return Builder(
+                builder: (BuildContext context) {
+                  return Stack(
+                    children: <Widget>[
+                      Container(
                         width: MediaQuery.of(context).size.width,
                         margin: EdgeInsets.symmetric(horizontal: 5.0),
                         decoration: BoxDecoration(color: Colors.amber),
-                        child: Text(
-                          'Image $i',
-                          style: TextStyle(fontSize: 16.0),
-                        ),
-                      );
-                    },
+                        child: _images[i - 1],
+                      ),
+                      Align(
+                        alignment: Alignment.bottomCenter,
+                        child: _foodNames[i - 1],
+                      ),
+                    ],
                   );
-                }).toList(),
-              ),
-            ],
+                },
+              );
+            }).toList(),
           ),
           SizedBox(height: 8.0),
           Center(

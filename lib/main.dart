@@ -3,7 +3,7 @@ import 'package:local_auth/local_auth.dart';
 import 'package:flutter_auth_buttons/flutter_auth_buttons.dart';
 import 'package:flutter_signin_button/flutter_signin_button.dart';
 
-import 'package:ncr_hachathon/home.dart';
+import 'package:ncr_hachathon/userPage.dart';
 
 void main() => runApp(MyApp());
 
@@ -301,9 +301,9 @@ class _MyHomePageState extends State<MyHomePage> {
                 if (value) {
                   _fingerprintAuth().then((value) {
                     if (value) {
-                      Navigator.push(
+                      Navigator.pushReplacement(
                         context,
-                        MaterialPageRoute(builder: (context) => UserHomePage()),
+                        MaterialPageRoute(builder: (context) => Home()),
                       );
                     }
                   });
