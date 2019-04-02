@@ -89,12 +89,17 @@ class _ShoppingListState extends State<ShoppingList> {
                                 ),
                                 leading: CircularCheckBox(
                                     activeColor: Colors.green,
-                                    value: _checkalue,
+                                    value: document['selected'],
                                     materialTapTargetSize:
                                         MaterialTapTargetSize.padded,
                                     onChanged: (bool x) {
                                       setState(() {
-                                        _checkalue = !_checkalue;
+                                        Firestore.instance
+                                            .collection('shopping_list')
+                                            .document(document.documentID)
+                                            .updateData({
+                                          'selected': x,
+                                        });
                                       });
                                     }),
                                 trailing: ButtonBar(
@@ -231,8 +236,10 @@ class _ShoppingListState extends State<ShoppingList> {
                                           CollectionReference reference =
                                               Firestore.instance
                                                   .collection('shopping_list');
-                                          await reference
-                                              .add({"list": _listName});
+                                          await reference.add({
+                                            "list": _listName,
+                                            "selected": false,
+                                          });
                                         });
                                         Navigator.of(context).pop();
                                       },
