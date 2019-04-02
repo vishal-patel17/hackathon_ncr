@@ -100,6 +100,25 @@ class _ShoppingListState extends State<ShoppingList> {
                                             .updateData({
                                           'selected': x,
                                         });
+                                        if (x) {
+                                          Firestore.instance
+                                              .collection(document['list'])
+                                              .getDocuments()
+                                              .then((snapshot) {
+                                            for (DocumentSnapshot ds
+                                                in snapshot.documents) {
+                                              Firestore.instance.runTransaction(
+                                                  (Transaction
+                                                      transaction) async {
+                                                CollectionReference reference =
+                                                    Firestore.instance
+                                                        .collection('cart');
+                                                await reference
+                                                    .add({"name": ds['name']});
+                                              });
+                                            }
+                                          });
+                                        }
                                       });
                                     }),
                                 trailing: ButtonBar(
@@ -430,8 +449,84 @@ class _ShoppingListState extends State<ShoppingList> {
             ],
           ),
           // Cart Page
-          Center(
-            child: Text("Page 3"),
+          StreamBuilder<QuerySnapshot>(
+            stream: Firestore.instance.collection('cart').snapshots(),
+            builder:
+                (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+              if (snapshot.hasError)
+                return Center(
+                  child: Text('Error: ${snapshot.error}'),
+                );
+              if (!snapshot.hasData)
+                return Center(
+                  child: Text('No List Found'),
+                );
+              switch (snapshot.connectionState) {
+                case ConnectionState.waiting:
+                  return Center(
+                    child: CircularProgressIndicator(),
+                  );
+                default:
+                  return Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: ListView(
+                      children: snapshot.data.documents
+                          .map((DocumentSnapshot document) {
+                        return Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Card(
+                            elevation: 10.0,
+                            child: ListTile(
+                              title: Text(
+                                document['name'],
+                                style: TextStyle(fontSize: 20.0),
+                              ),
+                              trailing: IconButton(
+                                icon: Icon(
+                                  FontAwesomeIcons.times,
+                                  color: Colors.grey,
+                                ),
+                                onPressed: () {
+                                  showDialog(
+                                      context: context,
+                                      builder: (BuildContext context) {
+                                        return AlertDialog(
+                                          title: Text("Delete " +
+                                              document['name'] +
+                                              " ?"),
+                                          actions: <Widget>[
+                                            FlatButton(
+                                              child: Icon(Icons.done),
+                                              onPressed: () {
+                                                Firestore.instance
+                                                    .collection('cart')
+                                                    .document(
+                                                        document.documentID)
+                                                    .delete();
+
+                                                Navigator.pop(context);
+                                                //refreshPage();
+                                              },
+                                            ),
+                                            FlatButton(
+                                              child: Icon(Icons.cancel),
+                                              onPressed: () {
+                                                Navigator.pop(context);
+                                              },
+                                            ),
+                                          ],
+                                        );
+                                      });
+                                },
+                              ),
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  );
+              }
+            },
           ),
         ]),
       ),
