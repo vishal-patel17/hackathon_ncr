@@ -3,6 +3,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:circular_check_box/circular_check_box.dart';
 import 'package:flutter_xlider/flutter_xlider.dart';
+import 'package:unicorndial/unicorndial.dart';
 
 class ShoppingList extends StatefulWidget {
   @override
@@ -105,14 +106,66 @@ class _ShoppingListState extends State<ShoppingList> {
                                         FontAwesomeIcons.edit,
                                         color: Colors.grey,
                                       ),
-                                      onPressed: () {},
+                                      onPressed: () {
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) => InnerList(
+                                                    listName: document['list'],
+                                                  ),
+                                            ));
+                                      },
                                     ),
                                     IconButton(
                                       icon: Icon(
                                         FontAwesomeIcons.times,
                                         color: Colors.grey,
                                       ),
-                                      onPressed: () {},
+                                      onPressed: () {
+                                        showDialog(
+                                            context: context,
+                                            builder: (BuildContext context) {
+                                              return AlertDialog(
+                                                title: Text("Delete " +
+                                                    document['list'] +
+                                                    " ?"),
+                                                actions: <Widget>[
+                                                  FlatButton(
+                                                    child: Icon(Icons.done),
+                                                    onPressed: () {
+                                                      Firestore.instance
+                                                          .collection(
+                                                              'shopping_list')
+                                                          .document(document
+                                                              .documentID)
+                                                          .delete();
+
+                                                      Firestore.instance
+                                                          .collection(
+                                                              document['list'])
+                                                          .getDocuments()
+                                                          .then((snapshot) {
+                                                        for (DocumentSnapshot ds
+                                                            in snapshot
+                                                                .documents) {
+                                                          ds.reference.delete();
+                                                        }
+                                                      });
+
+                                                      Navigator.pop(context);
+                                                      //refreshPage();
+                                                    },
+                                                  ),
+                                                  FlatButton(
+                                                    child: Icon(Icons.cancel),
+                                                    onPressed: () {
+                                                      Navigator.pop(context);
+                                                    },
+                                                  ),
+                                                ],
+                                              );
+                                            });
+                                      },
                                     ),
                                   ],
                                 ),
@@ -154,6 +207,8 @@ class _ShoppingListState extends State<ShoppingList> {
                                 return AlertDialog(
                                   title: Text('Enter the name:'),
                                   content: TextField(
+                                    textCapitalization:
+                                        TextCapitalization.sentences,
                                     keyboardType: TextInputType.text,
                                     autofocus: true,
                                     decoration: InputDecoration(
@@ -372,6 +427,171 @@ class _ShoppingListState extends State<ShoppingList> {
             child: Text("Page 3"),
           ),
         ]),
+      ),
+    );
+  }
+}
+
+class InnerList extends StatefulWidget {
+  final String listName;
+  InnerList({Key key, this.listName}) : super(key: key);
+  @override
+  _InnerListState createState() => _InnerListState();
+}
+
+class _InnerListState extends State<InnerList> {
+  String _itemName;
+  @override
+  Widget build(BuildContext context) {
+    var childButtons = List<UnicornButton>();
+    childButtons.add(UnicornButton(
+      hasLabel: true,
+      labelText: "Add a new item",
+      currentButton: FloatingActionButton(
+        heroTag: "add",
+        backgroundColor: Colors.redAccent,
+        mini: true,
+        child: Icon(
+          FontAwesomeIcons.plus,
+          color: Colors.white,
+        ),
+        onPressed: () {
+          showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  title: Text('Enter the name:'),
+                  content: TextField(
+                    textCapitalization: TextCapitalization.sentences,
+                    keyboardType: TextInputType.text,
+                    autofocus: true,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(40.0)),
+                    ),
+                    onChanged: (value) {
+                      setState(() {
+                        this._itemName = value;
+                      });
+                    },
+                  ),
+                  actions: <Widget>[
+                    FlatButton(
+                      child: Text('Submit'),
+                      onPressed: () {
+                        Firestore.instance
+                            .runTransaction((Transaction transaction) async {
+                          CollectionReference reference =
+                              Firestore.instance.collection(widget.listName);
+                          await reference.add({"name": _itemName});
+                        });
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                    FlatButton(
+                      child: Text('Dismiss'),
+                      onPressed: () => Navigator.of(context).pop(),
+                    ),
+                  ],
+                );
+              });
+        },
+      ),
+    ));
+    childButtons.add(UnicornButton(
+      hasLabel: true,
+      labelText: "Scan a new item",
+      currentButton: FloatingActionButton(
+        heroTag: "barcode",
+        backgroundColor: Colors.redAccent,
+        mini: true,
+        child: Icon(FontAwesomeIcons.barcode),
+        onPressed: () {},
+      ),
+    ));
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.listName),
+        backgroundColor: Colors.red,
+      ),
+      floatingActionButton: UnicornDialer(
+          backgroundColor: Color.fromRGBO(255, 255, 255, 0.6),
+          parentButtonBackground: Colors.red,
+          orientation: UnicornOrientation.VERTICAL,
+          parentButton: Icon(Icons.add),
+          childButtons: childButtons),
+      body: StreamBuilder<QuerySnapshot>(
+        stream: Firestore.instance.collection(widget.listName).snapshots(),
+        builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+          if (snapshot.hasError)
+            return Center(
+              child: Text('Error: ${snapshot.error}'),
+            );
+          if (!snapshot.hasData)
+            return Center(
+              child: Text('No List Found'),
+            );
+          switch (snapshot.connectionState) {
+            case ConnectionState.waiting:
+              return Center(
+                child: CircularProgressIndicator(),
+              );
+            default:
+              return ListView(
+                children:
+                    snapshot.data.documents.map((DocumentSnapshot document) {
+                  return Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Card(
+                      elevation: 10.0,
+                      child: ListTile(
+                        title: Text(
+                          document['name'],
+                          style: TextStyle(fontSize: 20.0),
+                        ),
+                        trailing: IconButton(
+                          icon: Icon(
+                            FontAwesomeIcons.times,
+                            color: Colors.grey,
+                          ),
+                          onPressed: () {
+                            showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return AlertDialog(
+                                    title: Text(
+                                        "Delete " + document['name'] + " ?"),
+                                    actions: <Widget>[
+                                      FlatButton(
+                                        child: Icon(Icons.done),
+                                        onPressed: () {
+                                          Firestore.instance
+                                              .collection(widget.listName)
+                                              .document(document.documentID)
+                                              .delete();
+
+                                          Navigator.pop(context);
+                                          //refreshPage();
+                                        },
+                                      ),
+                                      FlatButton(
+                                        child: Icon(Icons.cancel),
+                                        onPressed: () {
+                                          Navigator.pop(context);
+                                        },
+                                      ),
+                                    ],
+                                  );
+                                });
+                          },
+                        ),
+                      ),
+                    ),
+                  );
+                }).toList(),
+              );
+          }
+        },
       ),
     );
   }
