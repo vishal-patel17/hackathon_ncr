@@ -1,7 +1,13 @@
+import 'dart:io';
+import 'dart:math';
+
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:flutter_auth_buttons/flutter_auth_buttons.dart';
 import 'package:flutter_signin_button/flutter_signin_button.dart';
+import 'package:firebase_ml_vision/firebase_ml_vision.dart';
+import 'package:image_picker/image_picker.dart';
 
 import 'package:ncr_hachathon/userPage.dart';
 
@@ -268,6 +274,45 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text('SuperStore'),
         centerTitle: true,
         backgroundColor: Colors.red,
+        actions: <Widget>[
+//          IconButton(
+//              icon: (Icon(FontAwesomeIcons.barcode)),
+//              onPressed: () async {
+//                final File imageFile =
+//                    await ImagePicker.pickImage(source: ImageSource.gallery);
+//                final FirebaseVisionImage visionImage =
+//                    FirebaseVisionImage.fromFile(imageFile);
+//                final BarcodeDetector barcodeDetector =
+//                    FirebaseVision.instance.barcodeDetector();
+//                final List<Barcode> barcodes =
+//                    await barcodeDetector.detectInImage(visionImage);
+//
+//                for (Barcode barcode in barcodes) {
+//                  final Rect boundingBox = barcode.boundingBox;
+//                  final List<Offset> cornerPoints = barcode.cornerPoints;
+//
+//                  final String rawValue = barcode.rawValue;
+//                  print(rawValue);
+//
+//                  final BarcodeValueType valueType = barcode.valueType;
+//
+//                  // See API reference for complete list of supported types
+//                  switch (valueType) {
+//                    case BarcodeValueType.wifi:
+//                      final String ssid = barcode.wifi.ssid;
+//                      final String password = barcode.wifi.password;
+//                      final BarcodeWiFiEncryptionType type =
+//                          barcode.wifi.encryptionType;
+//                      break;
+//                    case BarcodeValueType.url:
+//                      final String title = barcode.url.title;
+//                      final String url = barcode.url.url;
+//                      break;
+//                    default:
+//                  }
+//                }
+//              }),
+        ],
       ),
       bottomNavigationBar: Padding(
         padding: EdgeInsets.all(8.0),

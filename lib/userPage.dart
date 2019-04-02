@@ -78,6 +78,7 @@ class _HomeState extends State<Home> {
     final location = Location(_center.latitude, _center.longitude);
     final result = await _places.searchNearbyWithRadius(location, 5000,
         name: 'metro', type: 'store');
+
     setState(() {
       if (result.status == "OK") {
         this.places = result.results;
@@ -109,7 +110,7 @@ class _HomeState extends State<Home> {
     List<Widget> list = [];
 //    PlacesDetailsResponse place = await _places.getDetailsByPlaceId(f.placeId);
 //    final placeDetail = place.result;
-
+//    print("Address: " + placeDetail.formattedAddress);
     if (f.photos != null) {
       final photos = f.photos;
       list.add(
@@ -217,25 +218,31 @@ class _HomeState extends State<Home> {
       );
     }
 
-    if (f.formattedAddress != null) {
-      list.add(
-        Padding(
-          padding:
-              EdgeInsets.only(top: 4.0, left: 8.0, right: 8.0, bottom: 4.0),
-          child: Text(
-            f.formattedAddress,
-            style: Theme.of(context).textTheme.body1,
-          ),
-        ),
-      );
-    }
-//    else{
+    list.add(
+      FutureBuilder(
+        future: _places.getDetailsByPlaceId(f.placeId),
+        builder: (BuildContext context, AsyncSnapshot snapshot) {
+          if (snapshot.hasData) {
+            if (snapshot.data != null) {
+              var placeDetail = snapshot.data.result;
+              return placeDetail == null
+                  ? SizedBox()
+                  : Text("Addr: ${placeDetail.formattedAddress}");
+            } else
+              return SizedBox();
+          } else {
+            return SizedBox();
+          }
+        },
+      ),
+    );
+//    if (f.formattedAddress != null) {
 //      list.add(
 //        Padding(
 //          padding:
-//          EdgeInsets.only(top: 4.0, left: 8.0, right: 8.0, bottom: 4.0),
+//              EdgeInsets.only(top: 4.0, left: 8.0, right: 8.0, bottom: 4.0),
 //          child: Text(
-//            placeDetail.formattedAddress,
+//            f.formattedAddress,
 //            style: Theme.of(context).textTheme.body1,
 //          ),
 //        ),
@@ -263,8 +270,8 @@ class _HomeState extends State<Home> {
                       ));
                 },
                 child: Container(
-                  height: 150.0,
-                  width: 150.0,
+                  height: 100.0,
+                  width: 100.0,
                   color: Colors.red,
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -287,8 +294,8 @@ class _HomeState extends State<Home> {
                 ),
               ),
               Container(
-                height: 150.0,
-                width: 150.0,
+                height: 100.0,
+                width: 100.0,
                 color: Colors.red,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -572,6 +579,7 @@ class _BookDeliveryState extends State<BookDelivery> {
               onChanged: (dt) {
                 setState(() {
                   date = dt;
+                  this._isPremium = false;
                   if (date.day != DateTime.now().day) {
                     this._isPremium = true;
                   }

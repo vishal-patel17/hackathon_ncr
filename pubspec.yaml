@@ -41,6 +41,8 @@ dev_dependencies:
   flutter_range_slider: ^1.1.0
   flutter_xlider: ^2.2.1
   datetime_picker_formfield: ^0.1.8
+  image_picker: ^0.5.0+9
+  firebase_ml_vision: ^0.6.0+2
 
 
 # For information on the generic Dart part of this file, see the
