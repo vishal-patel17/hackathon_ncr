@@ -204,19 +204,6 @@ class _HomeState extends State<Home> {
       );
     }
 
-//    if (f.reference != null) {
-//      list.add(
-//        Padding(
-//          padding:
-//              EdgeInsets.only(top: 0.0, left: 8.0, right: 8.0, bottom: 4.0),
-//          child: Text(
-//            f.reference,
-//            style: Theme.of(context).textTheme.caption,
-//          ),
-//        ),
-//      );
-//    }
-
     if (f.rating != null) {
       list.add(
         Padding(
@@ -242,6 +229,18 @@ class _HomeState extends State<Home> {
         ),
       );
     }
+//    else{
+//      list.add(
+//        Padding(
+//          padding:
+//          EdgeInsets.only(top: 4.0, left: 8.0, right: 8.0, bottom: 4.0),
+//          child: Text(
+//            placeDetail.formattedAddress,
+//            style: Theme.of(context).textTheme.body1,
+//          ),
+//        ),
+//      );
+//    }
 
     list.add(SizedBox(height: 10.0));
 
@@ -498,6 +497,7 @@ class BookDelivery extends StatefulWidget {
 }
 
 class _BookDeliveryState extends State<BookDelivery> {
+  bool _isPremium = false;
   final formats = {
     InputType.both: DateFormat("EEEE, MMMM d, yyyy 'at' h:mma"),
     InputType.date: DateFormat('yyyy-MM-dd'),
@@ -506,7 +506,7 @@ class _BookDeliveryState extends State<BookDelivery> {
 
   // Changeable in demo
   InputType inputType = InputType.both;
-  bool editable = true;
+  bool editable = false;
   DateTime date;
   @override
   Widget build(BuildContext context) {
@@ -544,7 +544,7 @@ class _BookDeliveryState extends State<BookDelivery> {
                 ),
                 SizedBox(height: 8.0),
                 Text(
-                  'Kingdom House, NW2 9S2',
+                  'Building 12C, Raheja Mindspace',
                   style: TextStyle(
                     color: Colors.black,
                     fontSize: 18.0,
@@ -569,9 +569,28 @@ class _BookDeliveryState extends State<BookDelivery> {
                 labelText: 'Select Date and Time',
                 hasFloatingPlaceholder: false,
               ),
-              onChanged: (dt) => setState(() => date = dt),
+              onChanged: (dt) {
+                setState(() {
+                  date = dt;
+                  if (date.day != DateTime.now().day) {
+                    this._isPremium = true;
+                  }
+                });
+              },
             ),
           ),
+          SizedBox(height: 8.0),
+          date == null
+              ? SizedBox()
+              : date.day == DateTime.now().day
+                  ? Text(
+                      '* Available only for premium members.',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.red,
+                      ),
+                    )
+                  : SizedBox(),
           SizedBox(height: 8.0),
           Container(
             height: 300.0,
@@ -588,6 +607,20 @@ class _BookDeliveryState extends State<BookDelivery> {
               ),
             ),
           ),
+          SizedBox(height: 12.0),
+          RaisedButton(
+            padding: EdgeInsets.all(25.0),
+            elevation: 10.0,
+            child: Text(
+              'Go Premium',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 17.0,
+              ),
+            ),
+            color: Colors.green,
+            onPressed: () {},
+          ),
           Expanded(
             child: Align(
               alignment: Alignment.bottomCenter,
@@ -597,17 +630,28 @@ class _BookDeliveryState extends State<BookDelivery> {
                   mainAxisSize: MainAxisSize.max,
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: <Widget>[
-                    Container(
-                      decoration: BoxDecoration(
-                          color: Colors.blue,
-                          shape: BoxShape.rectangle,
-                          borderRadius: BorderRadius.circular(30.0)),
-                      width: MediaQuery.of(context).size.width - 50.0,
-                      height: 60.0,
-                      child: Center(
-                        child: Text(
-                          'CONFIRM',
-                          style: TextStyle(color: Colors.white, fontSize: 20.0),
+                    GestureDetector(
+                      onTap: () {
+                        _isPremium
+                            ? Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => UserHomePage()))
+                            : null;
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                            color: Colors.blue,
+                            shape: BoxShape.rectangle,
+                            borderRadius: BorderRadius.circular(30.0)),
+                        width: MediaQuery.of(context).size.width - 50.0,
+                        height: 60.0,
+                        child: Center(
+                          child: Text(
+                            'CONFIRM',
+                            style:
+                                TextStyle(color: Colors.white, fontSize: 20.0),
+                          ),
                         ),
                       ),
                     ),
