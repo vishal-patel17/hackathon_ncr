@@ -1,9 +1,14 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:circular_check_box/circular_check_box.dart';
 import 'package:flutter_xlider/flutter_xlider.dart';
 import 'package:unicorndial/unicorndial.dart';
+import 'package:flushbar/flushbar.dart';
+import 'package:firebase_ml_vision/firebase_ml_vision.dart';
+import 'package:image_picker/image_picker.dart';
 
 class ShoppingList extends StatefulWidget {
   @override
@@ -118,6 +123,12 @@ class _ShoppingListState extends State<ShoppingList> {
                                               });
                                             }
                                           });
+                                          Flushbar(
+                                            title: "Info",
+                                            message:
+                                                "${document['list']} added to cart",
+                                            duration: Duration(seconds: 3),
+                                          )..show(context);
                                         }
                                       });
                                     }),
@@ -207,21 +218,21 @@ class _ShoppingListState extends State<ShoppingList> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: <Widget>[
-                      Container(
-                        decoration: BoxDecoration(
-                            color: Colors.red,
-                            shape: BoxShape.rectangle,
-                            borderRadius: BorderRadius.circular(30.0)),
-                        width: MediaQuery.of(context).size.width - 50.0,
-                        height: 60.0,
-                        child: Center(
-                          child: Text(
-                            'CONFIRM',
-                            style:
-                                TextStyle(color: Colors.white, fontSize: 20.0),
-                          ),
-                        ),
-                      ),
+//                      Container(
+//                        decoration: BoxDecoration(
+//                            color: Colors.red,
+//                            shape: BoxShape.rectangle,
+//                            borderRadius: BorderRadius.circular(30.0)),
+//                        width: MediaQuery.of(context).size.width - 50.0,
+//                        height: 60.0,
+//                        child: Center(
+//                          child: Text(
+//                            'CONFIRM',
+//                            style:
+//                                TextStyle(color: Colors.white, fontSize: 20.0),
+//                          ),
+//                        ),
+//                      ),
                       SizedBox(height: 8.0),
                       GestureDetector(
                         onTap: () {
@@ -324,7 +335,7 @@ class _ShoppingListState extends State<ShoppingList> {
                             child: Container(
                               padding: EdgeInsets.all(5),
                               child: Icon(
-                                FontAwesomeIcons.slidersH,
+                                FontAwesomeIcons.rupeeSign,
                                 color: Colors.black,
                                 size: 25,
                               ),
@@ -365,7 +376,7 @@ class _ShoppingListState extends State<ShoppingList> {
                           child: Container(
                             padding: EdgeInsets.all(5),
                             child: Icon(
-                              FontAwesomeIcons.slidersH,
+                              FontAwesomeIcons.rupeeSign,
                               color: Colors.black,
                               size: 25,
                             ),
@@ -405,7 +416,7 @@ class _ShoppingListState extends State<ShoppingList> {
                           child: Container(
                             padding: EdgeInsets.all(5),
                             child: Icon(
-                              FontAwesomeIcons.slidersH,
+                              FontAwesomeIcons.rupeeSign,
                               color: Colors.black,
                               size: 25,
                             ),
@@ -608,7 +619,40 @@ class _InnerListState extends State<InnerList> {
         backgroundColor: Colors.redAccent,
         mini: true,
         child: Icon(FontAwesomeIcons.barcode),
-        onPressed: () {},
+        onPressed: () async {
+          final File imageFile =
+              await ImagePicker.pickImage(source: ImageSource.camera);
+          final FirebaseVisionImage visionImage =
+              FirebaseVisionImage.fromFile(imageFile);
+          final BarcodeDetector barcodeDetector =
+              FirebaseVision.instance.barcodeDetector();
+          final List<Barcode> barcodes =
+              await barcodeDetector.detectInImage(visionImage);
+
+          for (Barcode barcode in barcodes) {
+            final Rect boundingBox = barcode.boundingBox;
+            final List<Offset> cornerPoints = barcode.cornerPoints;
+
+            final String rawValue = barcode.rawValue;
+
+            final BarcodeValueType valueType = barcode.valueType;
+
+            // See API reference for complete list of supported types
+            switch (valueType) {
+              case BarcodeValueType.wifi:
+                final String ssid = barcode.wifi.ssid;
+                final String password = barcode.wifi.password;
+                final BarcodeWiFiEncryptionType type =
+                    barcode.wifi.encryptionType;
+                break;
+              case BarcodeValueType.url:
+                final String title = barcode.url.title;
+                final String url = barcode.url.url;
+                break;
+              default:
+            }
+          }
+        },
       ),
     ));
     return Scaffold(
