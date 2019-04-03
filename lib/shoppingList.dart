@@ -1,4 +1,6 @@
 import 'dart:io';
+import 'package:flutter/services.dart';
+import 'package:flutter_nfc_reader/flutter_nfc_reader.dart';
 
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -480,60 +482,91 @@ class _ShoppingListState extends State<ShoppingList> {
                 default:
                   return Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: ListView(
-                      children: snapshot.data.documents
-                          .map((DocumentSnapshot document) {
-                        return Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Card(
-                            elevation: 10.0,
-                            child: ListTile(
-                              title: Text(
-                                document['name'],
-                                style: TextStyle(fontSize: 20.0),
+                    child: Column(
+                      children: <Widget>[
+                        ListView(
+                          shrinkWrap: true,
+                          children: snapshot.data.documents
+                              .map((DocumentSnapshot document) {
+                            return Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Card(
+                                elevation: 10.0,
+                                child: ListTile(
+                                  title: Text(
+                                    document['name'],
+                                    style: TextStyle(fontSize: 20.0),
+                                  ),
+                                  trailing: IconButton(
+                                    icon: Icon(
+                                      FontAwesomeIcons.times,
+                                      color: Colors.grey,
+                                    ),
+                                    onPressed: () {
+                                      showDialog(
+                                          context: context,
+                                          builder: (BuildContext context) {
+                                            return AlertDialog(
+                                              title: Text("Delete " +
+                                                  document['name'] +
+                                                  " ?"),
+                                              actions: <Widget>[
+                                                FlatButton(
+                                                  child: Icon(Icons.done),
+                                                  onPressed: () {
+                                                    Firestore.instance
+                                                        .collection('cart')
+                                                        .document(
+                                                            document.documentID)
+                                                        .delete();
+
+                                                    Navigator.pop(context);
+                                                    //refreshPage();
+                                                  },
+                                                ),
+                                                FlatButton(
+                                                  child: Icon(Icons.cancel),
+                                                  onPressed: () {
+                                                    Navigator.pop(context);
+                                                  },
+                                                ),
+                                              ],
+                                            );
+                                          });
+                                    },
+                                  ),
+                                ),
                               ),
-                              trailing: IconButton(
-                                icon: Icon(
-                                  FontAwesomeIcons.times,
-                                  color: Colors.grey,
+                            );
+                          }).toList(),
+                        ),
+                        Expanded(
+                          child: Align(
+                            alignment: Alignment.bottomCenter,
+                            child: RaisedButton(
+                                padding: EdgeInsets.all(20.0),
+                                elevation: 8.0,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius:
+                                        new BorderRadius.circular(30.0)),
+                                color: Colors.green,
+                                child: Text(
+                                  'Proceed to checkout',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 20.0,
+                                  ),
                                 ),
                                 onPressed: () {
-                                  showDialog(
-                                      context: context,
-                                      builder: (BuildContext context) {
-                                        return AlertDialog(
-                                          title: Text("Delete " +
-                                              document['name'] +
-                                              " ?"),
-                                          actions: <Widget>[
-                                            FlatButton(
-                                              child: Icon(Icons.done),
-                                              onPressed: () {
-                                                Firestore.instance
-                                                    .collection('cart')
-                                                    .document(
-                                                        document.documentID)
-                                                    .delete();
-
-                                                Navigator.pop(context);
-                                                //refreshPage();
-                                              },
-                                            ),
-                                            FlatButton(
-                                              child: Icon(Icons.cancel),
-                                              onPressed: () {
-                                                Navigator.pop(context);
-                                              },
-                                            ),
-                                          ],
-                                        );
-                                      });
-                                },
-                              ),
-                            ),
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => Checkout(),
+                                      ));
+                                }),
                           ),
-                        );
-                      }).toList(),
+                        ),
+                      ],
                     ),
                   );
               }
@@ -554,6 +587,7 @@ class InnerList extends StatefulWidget {
 
 class _InnerListState extends State<InnerList> {
   String _itemName;
+  String _barcodeData;
   @override
   Widget build(BuildContext context) {
     var childButtons = List<UnicornButton>();
@@ -621,7 +655,7 @@ class _InnerListState extends State<InnerList> {
         child: Icon(FontAwesomeIcons.barcode),
         onPressed: () async {
           final File imageFile =
-              await ImagePicker.pickImage(source: ImageSource.camera);
+              await ImagePicker.pickImage(source: ImageSource.gallery);
           final FirebaseVisionImage visionImage =
               FirebaseVisionImage.fromFile(imageFile);
           final BarcodeDetector barcodeDetector =
@@ -630,27 +664,10 @@ class _InnerListState extends State<InnerList> {
               await barcodeDetector.detectInImage(visionImage);
 
           for (Barcode barcode in barcodes) {
-            final Rect boundingBox = barcode.boundingBox;
-            final List<Offset> cornerPoints = barcode.cornerPoints;
-
             final String rawValue = barcode.rawValue;
-
-            final BarcodeValueType valueType = barcode.valueType;
-
-            // See API reference for complete list of supported types
-            switch (valueType) {
-              case BarcodeValueType.wifi:
-                final String ssid = barcode.wifi.ssid;
-                final String password = barcode.wifi.password;
-                final BarcodeWiFiEncryptionType type =
-                    barcode.wifi.encryptionType;
-                break;
-              case BarcodeValueType.url:
-                final String title = barcode.url.title;
-                final String url = barcode.url.url;
-                break;
-              default:
-            }
+            setState(() {
+              this._barcodeData = rawValue;
+            });
           }
         },
       ),
@@ -683,61 +700,174 @@ class _InnerListState extends State<InnerList> {
                 child: CircularProgressIndicator(),
               );
             default:
-              return ListView(
-                children:
-                    snapshot.data.documents.map((DocumentSnapshot document) {
-                  return Padding(
+              return Column(
+                children: <Widget>[
+                  ListView(
+                    shrinkWrap: true,
+                    children: snapshot.data.documents
+                        .map((DocumentSnapshot document) {
+                      return Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Card(
+                          elevation: 10.0,
+                          child: ListTile(
+                            title: Text(
+                              document['name'],
+                              style: TextStyle(fontSize: 20.0),
+                            ),
+                            trailing: IconButton(
+                              icon: Icon(
+                                FontAwesomeIcons.times,
+                                color: Colors.grey,
+                              ),
+                              onPressed: () {
+                                showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return AlertDialog(
+                                        title: Text("Delete " +
+                                            document['name'] +
+                                            " ?"),
+                                        actions: <Widget>[
+                                          FlatButton(
+                                            child: Icon(Icons.done),
+                                            onPressed: () {
+                                              Firestore.instance
+                                                  .collection(widget.listName)
+                                                  .document(document.documentID)
+                                                  .delete();
+
+                                              Navigator.pop(context);
+                                              //refreshPage();
+                                            },
+                                          ),
+                                          FlatButton(
+                                            child: Icon(Icons.cancel),
+                                            onPressed: () {
+                                              Navigator.pop(context);
+                                            },
+                                          ),
+                                        ],
+                                      );
+                                    });
+                              },
+                            ),
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                  Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Card(
                       elevation: 10.0,
                       child: ListTile(
-                        title: Text(
-                          document['name'],
-                          style: TextStyle(fontSize: 20.0),
-                        ),
+                        title: Text(_barcodeData != null ? _barcodeData : ""),
                         trailing: IconButton(
-                          icon: Icon(
-                            FontAwesomeIcons.times,
-                            color: Colors.grey,
-                          ),
-                          onPressed: () {
-                            showDialog(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return AlertDialog(
-                                    title: Text(
-                                        "Delete " + document['name'] + " ?"),
-                                    actions: <Widget>[
-                                      FlatButton(
-                                        child: Icon(Icons.done),
-                                        onPressed: () {
-                                          Firestore.instance
-                                              .collection(widget.listName)
-                                              .document(document.documentID)
-                                              .delete();
-
-                                          Navigator.pop(context);
-                                          //refreshPage();
-                                        },
-                                      ),
-                                      FlatButton(
-                                        child: Icon(Icons.cancel),
-                                        onPressed: () {
-                                          Navigator.pop(context);
-                                        },
-                                      ),
-                                    ],
-                                  );
-                                });
-                          },
+                          icon: Icon(FontAwesomeIcons.times),
+                          onPressed: () {},
+                          color: Colors.grey,
                         ),
                       ),
                     ),
-                  );
-                }).toList(),
+                  ),
+                ],
               );
           }
         },
+      ),
+    );
+  }
+}
+
+class Checkout extends StatefulWidget {
+  @override
+  _CheckoutState createState() => _CheckoutState();
+}
+
+class _CheckoutState extends State<Checkout> {
+  NfcData response;
+  NfcData _nfcData;
+
+  Future<void> startNFC() async {
+    setState(() {
+      _nfcData = NfcData();
+      _nfcData.status = NFCStatus.reading;
+    });
+
+    print('NFC: Scan started');
+
+    try {
+      print('NFC: Scan readed NFC tag');
+      response = await FlutterNfcReader.read;
+    } on PlatformException {
+      print('NFC: Scan stopped exception');
+    }
+    setState(() {
+      _nfcData = response;
+    });
+  }
+
+  Future<void> stopNFC() async {
+    try {
+      print('NFC: Stop scan by user');
+      response = await FlutterNfcReader.stop;
+    } on PlatformException {
+      print('NFC: Stop scan exception');
+      response = NfcData(
+        id: '',
+        content: '',
+        error: 'NFC scan stop exception',
+        statusMapper: '',
+      );
+      response.status = NFCStatus.error;
+    }
+
+    setState(() {
+      _nfcData = response;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.red,
+        title: Text(
+          'Checkout',
+          style: TextStyle(color: Colors.white),
+        ),
+      ),
+      body: Column(
+        children: <Widget>[
+          ListView(
+            padding: EdgeInsets.all(8.0),
+            shrinkWrap: true,
+            children: <Widget>[
+              Text('Available promotion offers:'),
+              RaisedButton(
+                padding: EdgeInsets.all(8.0),
+                color: Colors.green,
+                child: Text('Start nfc'),
+                onPressed: () {
+                  startNFC();
+                },
+              ),
+              RaisedButton(
+                padding: EdgeInsets.all(8.0),
+                color: Colors.red,
+                child: Text('Stop nfc'),
+                onPressed: () {
+                  stopNFC();
+                },
+              ),
+              Center(
+                child: Text(
+                    "${_nfcData != null ? _nfcData.status.toString() : ""} \n ${_nfcData != null ? _nfcData.content : ""}"),
+              ),
+            ],
+          )
+        ],
       ),
     );
   }
