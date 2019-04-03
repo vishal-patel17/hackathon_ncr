@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:geolocator/geolocator.dart';
@@ -10,6 +11,7 @@ import 'package:intl/intl.dart';
 import 'package:ncr_hachathon/home.dart';
 import 'package:ncr_hachathon/main.dart';
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
+import 'package:ncr_hachathon/shoppingList.dart';
 
 class Home extends StatefulWidget {
   _HomeState createState() => _HomeState();
@@ -413,86 +415,229 @@ class _HomeState extends State<Home> {
   }
 }
 
-class MyIceland extends StatefulWidget {
+class MyCart extends StatefulWidget {
   @override
-  _MyIcelandState createState() => _MyIcelandState();
+  _MyCartState createState() => _MyCartState();
 }
 
-class _MyIcelandState extends State<MyIceland> {
+class _MyCartState extends State<MyCart> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        title: Text('My Cart'),
         backgroundColor: Colors.red,
-        title: Text('My Store'),
-        centerTitle: true,
       ),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        mainAxisSize: MainAxisSize.max,
-        children: <Widget>[
-          ListView(
-            padding: EdgeInsets.all(8.0),
-            shrinkWrap: true,
-            children: <Widget>[
-              ListTile(
-                leading: Icon(FontAwesomeIcons.userCircle),
-                title: Text('Account'),
+      drawer: Drawer(
+        child: Column(
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: <Widget>[
+            Expanded(
+              flex: 5,
+              child: ListView(
+                shrinkWrap: true,
+                children: <Widget>[
+                  UserAccountsDrawerHeader(
+                    decoration: BoxDecoration(color: Colors.white),
+                    accountName: Text(''),
+                    accountEmail: Row(
+                      mainAxisSize: MainAxisSize.max,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        Text(
+                          "User",
+                          style: TextStyle(
+                              fontFamily: 'NotoSerif',
+                              fontSize: 18.0,
+                              color: Colors.black),
+                        ),
+                        IconButton(
+                            icon: Icon(
+                              Icons.settings,
+                              color: Colors.black,
+                            ),
+                            onPressed: () {}),
+                      ],
+                    ),
+                    currentAccountPicture: ClipRRect(
+                      borderRadius: BorderRadius.circular(40.0),
+                      child: Icon(FontAwesomeIcons.user),
+                    ),
+                  ),
+                  ListTile(
+                    leading: Icon(FontAwesomeIcons.userCircle),
+                    title: Text('Account'),
+                  ),
+                  Divider(),
+                  ListTile(
+                    leading: Icon(FontAwesomeIcons.slidersH),
+                    title: Text('Preferences'),
+                  ),
+                  Divider(),
+                  ListTile(
+                    leading: Icon(FontAwesomeIcons.smile),
+                    title: Text('Expeciences'),
+                  ),
+                  Divider(),
+                  ListTile(
+                    leading: Icon(FontAwesomeIcons.bookOpen),
+                    title: Text('Receipe Book'),
+                  ),
+                  Divider(),
+                  ListTile(
+                    leading: Icon(FontAwesomeIcons.receipt),
+                    title: Text('Receipts'),
+                  ),
+                  Divider(),
+                ],
               ),
-              Divider(),
-              ListTile(
-                leading: Icon(FontAwesomeIcons.slidersH),
-                title: Text('Preferences'),
-              ),
-              Divider(),
-              ListTile(
-                leading: Icon(FontAwesomeIcons.smile),
-                title: Text('Expeciences'),
-              ),
-              Divider(),
-              ListTile(
-                leading: Icon(FontAwesomeIcons.bookOpen),
-                title: Text('Receipe Book'),
-              ),
-              Divider(),
-              ListTile(
-                leading: Icon(FontAwesomeIcons.receipt),
-                title: Text('Receipts'),
-              ),
-              Divider(),
-            ],
-          ),
-          Expanded(
-            child: Align(
-              alignment: Alignment.bottomCenter,
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: GestureDetector(
-                  onTap: () {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (context) => MyHomePage()),
-                    );
-                  },
-                  child: Container(
-                    decoration: BoxDecoration(
-                        color: Colors.blue,
-                        shape: BoxShape.rectangle,
-                        borderRadius: BorderRadius.circular(30.0)),
-                    width: MediaQuery.of(context).size.width - 50.0,
-                    height: 60.0,
-                    child: Center(
-                      child: Text(
-                        'LOGOUT',
-                        style: TextStyle(color: Colors.white, fontSize: 20.0),
+            ),
+            Expanded(
+              child: Align(
+                alignment: Alignment.bottomCenter,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: GestureDetector(
+                    onTap: () {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) => MyHomePage()),
+                      );
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                          color: Colors.blue,
+                          shape: BoxShape.rectangle,
+                          borderRadius: BorderRadius.circular(30.0)),
+                      width: MediaQuery.of(context).size.width / 2.0,
+                      height: 60.0,
+                      child: Center(
+                        child: Text(
+                          'LOGOUT',
+                          style: TextStyle(color: Colors.white, fontSize: 20.0),
+                        ),
                       ),
                     ),
                   ),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
+      ),
+      body: StreamBuilder<QuerySnapshot>(
+        stream: Firestore.instance.collection('cart').snapshots(),
+        builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+          if (snapshot.hasError)
+            return Center(
+              child: Text('Error: ${snapshot.error}'),
+            );
+          if (!snapshot.hasData)
+            return Center(
+              child: Text('No List Found'),
+            );
+          switch (snapshot.connectionState) {
+            case ConnectionState.waiting:
+              return Center(
+                child: CircularProgressIndicator(),
+              );
+            default:
+              return snapshot.data.documents.length > 0
+                  ? Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Column(
+                        children: <Widget>[
+                          ListView(
+                            shrinkWrap: true,
+                            children: snapshot.data.documents
+                                .map((DocumentSnapshot document) {
+                              return Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Card(
+                                  elevation: 10.0,
+                                  child: ListTile(
+                                    title: Text(
+                                      document['name'],
+                                      style: TextStyle(fontSize: 20.0),
+                                    ),
+                                    trailing: IconButton(
+                                      icon: Icon(
+                                        FontAwesomeIcons.times,
+                                        color: Colors.grey,
+                                      ),
+                                      onPressed: () {
+                                        showDialog(
+                                            context: context,
+                                            builder: (BuildContext context) {
+                                              return AlertDialog(
+                                                title: Text("Delete " +
+                                                    document['name'] +
+                                                    " ?"),
+                                                actions: <Widget>[
+                                                  FlatButton(
+                                                    child: Icon(Icons.done),
+                                                    onPressed: () {
+                                                      Firestore.instance
+                                                          .collection('cart')
+                                                          .document(document
+                                                              .documentID)
+                                                          .delete();
+
+                                                      Navigator.pop(context);
+                                                      //refreshPage();
+                                                    },
+                                                  ),
+                                                  FlatButton(
+                                                    child: Icon(Icons.cancel),
+                                                    onPressed: () {
+                                                      Navigator.pop(context);
+                                                    },
+                                                  ),
+                                                ],
+                                              );
+                                            });
+                                      },
+                                    ),
+                                  ),
+                                ),
+                              );
+                            }).toList(),
+                          ),
+                          Expanded(
+                            child: Align(
+                              alignment: Alignment.bottomCenter,
+                              child: RaisedButton(
+                                  padding: EdgeInsets.all(20.0),
+                                  elevation: 8.0,
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius:
+                                          new BorderRadius.circular(30.0)),
+                                  color: Colors.green,
+                                  child: Text(
+                                    'Proceed to checkout',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 20.0,
+                                    ),
+                                  ),
+                                  onPressed: () {
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => Checkout(),
+                                        ));
+                                  }),
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  : Center(
+                      child: Text('No items in your cart'),
+                    );
+          }
+        },
       ),
     );
   }

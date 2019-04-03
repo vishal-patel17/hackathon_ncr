@@ -15,7 +15,7 @@ class _UserHomePageState extends State<UserHomePage> {
   final List<Widget> _children = [
     ShoppingList(),
     Receipes(),
-    MyIceland(),
+    MyCart(),
   ];
 
   void onTabTapped(int index) {
@@ -42,8 +42,8 @@ class _UserHomePageState extends State<UserHomePage> {
             title: Text('Receipes'),
           ),
           BottomNavigationBarItem(
-            icon: Icon(FontAwesomeIcons.userCircle),
-            title: Text('My Store'),
+            icon: Icon(FontAwesomeIcons.shoppingCart),
+            title: Text('My Cart'),
           )
         ],
       ),
