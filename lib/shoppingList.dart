@@ -480,95 +480,104 @@ class _ShoppingListState extends State<ShoppingList> {
                     child: CircularProgressIndicator(),
                   );
                 default:
-                  return Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Column(
-                      children: <Widget>[
-                        ListView(
-                          shrinkWrap: true,
-                          children: snapshot.data.documents
-                              .map((DocumentSnapshot document) {
-                            return Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Card(
-                                elevation: 10.0,
-                                child: ListTile(
-                                  title: Text(
-                                    document['name'],
-                                    style: TextStyle(fontSize: 20.0),
-                                  ),
-                                  trailing: IconButton(
-                                    icon: Icon(
-                                      FontAwesomeIcons.times,
-                                      color: Colors.grey,
-                                    ),
-                                    onPressed: () {
-                                      showDialog(
-                                          context: context,
-                                          builder: (BuildContext context) {
-                                            return AlertDialog(
-                                              title: Text("Delete " +
-                                                  document['name'] +
-                                                  " ?"),
-                                              actions: <Widget>[
-                                                FlatButton(
-                                                  child: Icon(Icons.done),
-                                                  onPressed: () {
-                                                    Firestore.instance
-                                                        .collection('cart')
-                                                        .document(
-                                                            document.documentID)
-                                                        .delete();
+                  return snapshot.data.documents.length > 0
+                      ? Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Column(
+                            children: <Widget>[
+                              ListView(
+                                shrinkWrap: true,
+                                children: snapshot.data.documents
+                                    .map((DocumentSnapshot document) {
+                                  return Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Card(
+                                      elevation: 10.0,
+                                      child: ListTile(
+                                        title: Text(
+                                          document['name'],
+                                          style: TextStyle(fontSize: 20.0),
+                                        ),
+                                        trailing: IconButton(
+                                          icon: Icon(
+                                            FontAwesomeIcons.times,
+                                            color: Colors.grey,
+                                          ),
+                                          onPressed: () {
+                                            showDialog(
+                                                context: context,
+                                                builder:
+                                                    (BuildContext context) {
+                                                  return AlertDialog(
+                                                    title: Text("Delete " +
+                                                        document['name'] +
+                                                        " ?"),
+                                                    actions: <Widget>[
+                                                      FlatButton(
+                                                        child: Icon(Icons.done),
+                                                        onPressed: () {
+                                                          Firestore.instance
+                                                              .collection(
+                                                                  'cart')
+                                                              .document(document
+                                                                  .documentID)
+                                                              .delete();
 
-                                                    Navigator.pop(context);
-                                                    //refreshPage();
-                                                  },
-                                                ),
-                                                FlatButton(
-                                                  child: Icon(Icons.cancel),
-                                                  onPressed: () {
-                                                    Navigator.pop(context);
-                                                  },
-                                                ),
-                                              ],
-                                            );
-                                          });
-                                    },
-                                  ),
+                                                          Navigator.pop(
+                                                              context);
+                                                          //refreshPage();
+                                                        },
+                                                      ),
+                                                      FlatButton(
+                                                        child:
+                                                            Icon(Icons.cancel),
+                                                        onPressed: () {
+                                                          Navigator.pop(
+                                                              context);
+                                                        },
+                                                      ),
+                                                    ],
+                                                  );
+                                                });
+                                          },
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                }).toList(),
+                              ),
+                              Expanded(
+                                child: Align(
+                                  alignment: Alignment.bottomCenter,
+                                  child: RaisedButton(
+                                      padding: EdgeInsets.all(20.0),
+                                      elevation: 8.0,
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              new BorderRadius.circular(30.0)),
+                                      color: Colors.green,
+                                      child: Text(
+                                        'Proceed to checkout',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 20.0,
+                                        ),
+                                      ),
+                                      onPressed: () {
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) => Checkout(),
+                                            ));
+                                      }),
                                 ),
                               ),
-                            );
-                          }).toList(),
-                        ),
-                        Expanded(
-                          child: Align(
-                            alignment: Alignment.bottomCenter,
-                            child: RaisedButton(
-                                padding: EdgeInsets.all(20.0),
-                                elevation: 8.0,
-                                shape: RoundedRectangleBorder(
-                                    borderRadius:
-                                        new BorderRadius.circular(30.0)),
-                                color: Colors.green,
-                                child: Text(
-                                  'Proceed to checkout',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 20.0,
-                                  ),
-                                ),
-                                onPressed: () {
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => Checkout(),
-                                      ));
-                                }),
+                            ],
                           ),
-                        ),
-                      ],
-                    ),
-                  );
+                        )
+                      : Center(
+                          child: Text('No items in your cart'),
+                        );
               }
             },
           ),
@@ -757,20 +766,23 @@ class _InnerListState extends State<InnerList> {
                       );
                     }).toList(),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Card(
-                      elevation: 10.0,
-                      child: ListTile(
-                        title: Text(_barcodeData != null ? _barcodeData : ""),
-                        trailing: IconButton(
-                          icon: Icon(FontAwesomeIcons.times),
-                          onPressed: () {},
-                          color: Colors.grey,
-                        ),
-                      ),
-                    ),
-                  ),
+                  _barcodeData != null
+                      ? Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Card(
+                            elevation: 10.0,
+                            child: ListTile(
+                              title: Text(
+                                  _barcodeData != null ? _barcodeData : ""),
+                              trailing: IconButton(
+                                icon: Icon(FontAwesomeIcons.times),
+                                onPressed: () {},
+                                color: Colors.grey,
+                              ),
+                            ),
+                          ),
+                        )
+                      : SizedBox(),
                 ],
               );
           }
