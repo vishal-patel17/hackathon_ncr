@@ -553,12 +553,17 @@ class _InnerListState extends State<InnerList> {
               FirebaseVision.instance.barcodeDetector();
           final List<Barcode> barcodes =
               await barcodeDetector.detectInImage(visionImage);
-
           for (Barcode barcode in barcodes) {
             final String rawValue = barcode.rawValue;
-            setState(() {
-              this._barcodeData = rawValue;
-            });
+            if (rawValue == '671860013624') {
+              setState(() {
+                this._barcodeData = 'Ghee';
+              });
+            } else {
+              setState(() {
+                this._barcodeData = rawValue;
+              });
+            }
           }
         },
       ),
@@ -655,7 +660,11 @@ class _InnerListState extends State<InnerList> {
                             elevation: 10.0,
                             child: ListTile(
                               title: Text(
-                                  _barcodeData != null ? _barcodeData : ""),
+                                _barcodeData != null ? _barcodeData : "",
+                                style: TextStyle(
+                                  fontSize: 19.0,
+                                ),
+                              ),
                               trailing: IconButton(
                                 icon: Icon(FontAwesomeIcons.times),
                                 onPressed: () {},
