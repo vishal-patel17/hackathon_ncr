@@ -12,6 +12,7 @@ import 'package:ncr_hachathon/home.dart';
 import 'package:ncr_hachathon/main.dart';
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'package:ncr_hachathon/shoppingList.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class Home extends StatefulWidget {
   _HomeState createState() => _HomeState();
@@ -535,7 +536,9 @@ class _MyCartState extends State<MyCart> {
             );
           if (!snapshot.hasData)
             return Center(
-              child: Text('No List Found'),
+              child: CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.red),
+              ),
             );
           switch (snapshot.connectionState) {
             case ConnectionState.waiting:
@@ -649,7 +652,44 @@ class BookDelivery extends StatefulWidget {
 }
 
 class _BookDeliveryState extends State<BookDelivery> {
+  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
   bool _isPremium = false;
+
+  @override
+  void initState() {
+    super.initState();
+    var initializationSettingAndroid =
+        new AndroidInitializationSettings('@mipmap/ic_launcher');
+    var initializationSettingIOS = new IOSInitializationSettings();
+    var initializationSettings = new InitializationSettings(
+        initializationSettingAndroid, initializationSettingIOS);
+
+    flutterLocalNotificationsPlugin = new FlutterLocalNotificationsPlugin();
+    flutterLocalNotificationsPlugin.initialize(initializationSettings,
+        onSelectNotification: onSelectNotification);
+  }
+
+  Future onSelectNotification(String payload) async {
+    return ShoppingList();
+  }
+
+  Future _showNotificationsWithDefaultSound() async {
+    var scheduledNotificationDateTime = date.subtract(Duration(hours: 24));
+    var androidPlatformChannelSpecifics = new AndroidNotificationDetails(
+        'your other channel id',
+        'your other channel name',
+        'your other channel description');
+    var iOSPlatformChannelSpecifics = new IOSNotificationDetails();
+    NotificationDetails platformChannelSpecifics = new NotificationDetails(
+        androidPlatformChannelSpecifics, iOSPlatformChannelSpecifics);
+    await flutterLocalNotificationsPlugin.schedule(
+        0,
+        'scheduled title',
+        'scheduled body',
+        scheduledNotificationDateTime,
+        platformChannelSpecifics);
+  }
+
   final formats = {
     InputType.both: DateFormat("EEEE, MMMM d, yyyy 'at' h:mma"),
     InputType.date: DateFormat('yyyy-MM-dd'),
@@ -785,6 +825,7 @@ class _BookDeliveryState extends State<BookDelivery> {
                   children: <Widget>[
                     GestureDetector(
                       onTap: () {
+                        _showNotificationsWithDefaultSound();
                         _isPremium
                             ? Navigator.push(
                                 context,
