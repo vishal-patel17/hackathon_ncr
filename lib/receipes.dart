@@ -365,7 +365,7 @@ class _MethodsState extends State<Methods> {
                   child: Icon(
                     FontAwesomeIcons.solidHeart,
                     size: 30.0,
-                    color: Colors.green,
+                    color: Colors.red,
                   ),
                 ),
               ],

@@ -817,6 +817,8 @@ class _CheckoutState extends State<Checkout> {
   bool _nfc = false;
   bool _card = false;
 
+  int _cartTotal = 500;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -896,6 +898,10 @@ class _CheckoutState extends State<Checkout> {
                       onChanged: (bool x) {
                         setState(() {
                           this._promo1 = x;
+                          this._cartTotal = 500;
+                          if (x) {
+                            this._cartTotal = 450;
+                          }
                         });
                       }),
                 ),
@@ -906,7 +912,7 @@ class _CheckoutState extends State<Checkout> {
                 child: ListTile(
                   leading: Icon(FontAwesomeIcons.percent),
                   title: Text(
-                    'Get 15% cashback up to ₹200',
+                    'Get ₹100 cashback',
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                   subtitle: Text('On purchase of 1kg of Ghee'),
@@ -917,11 +923,46 @@ class _CheckoutState extends State<Checkout> {
                       onChanged: (bool x) {
                         setState(() {
                           this._promo2 = x;
+                          this._cartTotal = 500;
+                          if (x) {
+                            this._cartTotal = 400;
+                          }
                         });
                       }),
                 ),
               ),
               Divider(),
+              SizedBox(height: 8.0),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Card(
+                  color: Colors.green,
+                  elevation: 10.0,
+                  child: ListTile(
+                    title: Text(
+                      'Cart total:',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20.0,
+                      ),
+                    ),
+                    leading: Icon(
+                      FontAwesomeIcons.rupeeSign,
+                      color: Colors.white,
+                    ),
+                    trailing: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                        _cartTotal.toString(),
+                        style: TextStyle(
+                            fontSize: 22.0,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
               SizedBox(height: 8.0),
               Center(
                 child: Text(
