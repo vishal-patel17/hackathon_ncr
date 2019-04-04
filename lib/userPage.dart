@@ -737,72 +737,77 @@ class _BookDeliveryState extends State<BookDelivery> {
               ],
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.all(18.0),
-            child: DateTimePickerFormField(
-              inputType: InputType.both,
-              format: formats[inputType],
-              editable: editable,
-              decoration: InputDecoration(
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(25.0),
+          ListView(
+            shrinkWrap: true,
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.all(18.0),
+                child: DateTimePickerFormField(
+                  inputType: InputType.both,
+                  format: formats[inputType],
+                  editable: editable,
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(25.0),
+                    ),
+                    labelText: 'Select Date and Time',
+                    hasFloatingPlaceholder: false,
+                  ),
+                  onChanged: (dt) {
+                    setState(() {
+                      date = dt;
+                      this._isPremium = false;
+                      if (date.hour >= DateTime.now().hour + 2) {
+                        this._isPremium = true;
+                      }
+                    });
+                  },
                 ),
-                labelText: 'Select Date and Time',
-                hasFloatingPlaceholder: false,
               ),
-              onChanged: (dt) {
-                setState(() {
-                  date = dt;
-                  this._isPremium = false;
-                  if (date.hour >= DateTime.now().hour + 2) {
-                    this._isPremium = true;
-                  }
-                });
-              },
-            ),
-          ),
-          SizedBox(height: 8.0),
-          date == null
-              ? SizedBox()
-              : date.day == DateTime.now().day &&
-                      date.hour <= DateTime.now().hour + 2
-                  ? Text(
-                      '* Available only for premium members.',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.red,
-                      ),
-                    )
-                  : SizedBox(),
-          SizedBox(height: 8.0),
-          Container(
-            height: 300.0,
-            width: 350.0,
-            child: Card(
-              color: Colors.white,
-              elevation: 8.0,
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
+              SizedBox(height: 8.0),
+              date == null
+                  ? SizedBox()
+                  : date.day == DateTime.now().day &&
+                          date.hour <= DateTime.now().hour + 2
+                      ? Text(
+                          '* Available only for premium members.',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.red,
+                          ),
+                        )
+                      : SizedBox(),
+              SizedBox(height: 8.0),
+              Container(
+                height: 300.0,
+                width: 350.0,
+                child: Card(
+                  color: Colors.white,
+                  elevation: 8.0,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      'Please remember to checkout your order before the scheduled time to confirm your delivery slot. Reserving a delivery slot does not guarantee a delivery time - all orders must be checked out in order to confirm delivery.\n\n\n\n\n *Wording to be updated and consistent with online(web) experience.',
+                      style: TextStyle(fontSize: 18.0),
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(height: 12.0),
+              RaisedButton(
+                padding: EdgeInsets.all(25.0),
+                elevation: 10.0,
                 child: Text(
-                  'Please remember to checkout your order before the scheduled time to confirm your delivery slot. Reserving a delivery slot does not guarantee a delivery time - all orders must be checked out in order to confirm delivery.\n\n\n\n\n *Wording to be updated and consistent with online(web) experience.',
-                  style: TextStyle(fontSize: 18.0),
+                  'Go Premium',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 17.0,
+                  ),
                 ),
+                color: Colors.green,
+                onPressed: () {},
               ),
-            ),
-          ),
-          SizedBox(height: 12.0),
-          RaisedButton(
-            padding: EdgeInsets.all(25.0),
-            elevation: 10.0,
-            child: Text(
-              'Go Premium',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 17.0,
-              ),
-            ),
-            color: Colors.green,
-            onPressed: () {},
+            ],
           ),
           Expanded(
             child: Align(

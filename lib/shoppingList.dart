@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 import 'package:flutter/services.dart';
 import 'package:flutter_nfc_reader/flutter_nfc_reader.dart';
 
@@ -558,10 +559,27 @@ class _InnerListState extends State<InnerList> {
             if (rawValue == '671860013624') {
               setState(() {
                 this._barcodeData = 'Ghee';
+                Firestore.instance
+                    .runTransaction((Transaction transaction) async {
+                  CollectionReference reference =
+                      Firestore.instance.collection(widget.listName);
+                  await reference.add({"name": _barcodeData});
+                });
+              });
+            } else if (rawValue == ']C10109312345678907') {
+              setState(() {
+                this._barcodeData = 'Coffee';
+                Firestore.instance
+                    .runTransaction((Transaction transaction) async {
+                  CollectionReference reference =
+                      Firestore.instance.collection(widget.listName);
+                  await reference.add({"name": _barcodeData});
+                });
               });
             } else {
               setState(() {
                 this._barcodeData = rawValue;
+                print(_barcodeData);
               });
             }
           }
@@ -653,27 +671,27 @@ class _InnerListState extends State<InnerList> {
                       );
                     }).toList(),
                   ),
-                  _barcodeData != null
-                      ? Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Card(
-                            elevation: 10.0,
-                            child: ListTile(
-                              title: Text(
-                                _barcodeData != null ? _barcodeData : "",
-                                style: TextStyle(
-                                  fontSize: 19.0,
-                                ),
-                              ),
-                              trailing: IconButton(
-                                icon: Icon(FontAwesomeIcons.times),
-                                onPressed: () {},
-                                color: Colors.grey,
-                              ),
-                            ),
-                          ),
-                        )
-                      : SizedBox(),
+//                  _barcodeData != null
+//                      ? Padding(
+//                          padding: const EdgeInsets.all(8.0),
+//                          child: Card(
+//                            elevation: 10.0,
+//                            child: ListTile(
+//                              title: Text(
+//                                _barcodeData != null ? _barcodeData : "",
+//                                style: TextStyle(
+//                                  fontSize: 19.0,
+//                                ),
+//                              ),
+//                              trailing: IconButton(
+//                                icon: Icon(FontAwesomeIcons.times),
+//                                onPressed: () {},
+//                                color: Colors.grey,
+//                              ),
+//                            ),
+//                          ),
+//                        )
+//                      : SizedBox(),
                 ],
               );
           }
@@ -691,6 +709,10 @@ class Checkout extends StatefulWidget {
 class _CheckoutState extends State<Checkout> {
   NfcData response;
   NfcData _nfcData;
+
+  String _cardNumber = '';
+  String _cardName = '';
+  String _cardDate = '';
 
   Future<void> startNFC() async {
     setState(() {
@@ -731,6 +753,46 @@ class _CheckoutState extends State<Checkout> {
     });
   }
 
+  Future<void> _scanCard() async {
+    final File imageFile =
+        await ImagePicker.pickImage(source: ImageSource.gallery);
+    final FirebaseVisionImage visionImage =
+        FirebaseVisionImage.fromFile(imageFile);
+    final TextRecognizer textRecognizer =
+        FirebaseVision.instance.textRecognizer();
+    final VisionText visionText =
+        await textRecognizer.processImage(visionImage);
+
+    String text = visionText.text;
+    for (TextBlock block in visionText.blocks) {
+      final String text = block.text;
+
+      for (TextLine line in block.lines) {
+        print("line: " + line.text);
+        if (line.text.length > 12) {
+          setState(() {
+            this._cardNumber = line.text;
+          });
+        }
+        if (line.text.contains('XE')) {
+          setState(() {
+            this._cardName = line.text;
+          });
+        }
+        if (line.text.contains('/')) {
+          setState(() {
+            this._cardDate = line.text;
+          });
+        }
+      }
+    }
+  }
+
+  bool _promo1 = false;
+  bool _promo2 = false;
+  bool _nfc = false;
+  bool _card = false;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -741,32 +803,224 @@ class _CheckoutState extends State<Checkout> {
           style: TextStyle(color: Colors.white),
         ),
       ),
-      body: Column(
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: <Widget>[
+            RaisedButton(
+              padding: EdgeInsets.all(18.0),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30.0)),
+              color: Colors.red,
+              child: Text(
+                'Complete Payment',
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
+              onPressed: () {},
+            ),
+            RaisedButton(
+              padding: EdgeInsets.all(18.0),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30.0)),
+              color: Colors.red,
+              child: Text('Self Pickup',
+                  style: TextStyle(
+                    color: Colors.white,
+                  )),
+              onPressed: () {},
+            ),
+          ],
+        ),
+      ),
+      body: ListView(
         children: <Widget>[
           ListView(
             padding: EdgeInsets.all(8.0),
             shrinkWrap: true,
             children: <Widget>[
-              Text('Available promotion offers:'),
-              RaisedButton(
-                padding: EdgeInsets.all(8.0),
-                color: Colors.green,
-                child: Text('Start nfc'),
-                onPressed: () {
-                  startNFC();
-                },
-              ),
-              RaisedButton(
-                padding: EdgeInsets.all(8.0),
-                color: Colors.red,
-                child: Text('Stop nfc'),
-                onPressed: () {
-                  stopNFC();
-                },
-              ),
               Center(
                 child: Text(
-                    "${_nfcData != null ? _nfcData.status.toString() : ""} \n ${_nfcData != null ? _nfcData.content : ""}"),
+                  'Available promotion offers:',
+                  style: TextStyle(
+                    fontSize: 20.0,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              SizedBox(height: 8.0),
+              Card(
+                elevation: 10.0,
+                child: ListTile(
+                  leading: Icon(FontAwesomeIcons.percent),
+                  title: Text(
+                    'Get 10% cashback up to ₹100',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  subtitle: Text('On purchase of 1kg of Tomatoes'),
+                  trailing: CircularCheckBox(
+                      activeColor: Colors.green,
+                      value: _promo1,
+                      materialTapTargetSize: MaterialTapTargetSize.padded,
+                      onChanged: (bool x) {
+                        setState(() {
+                          this._promo1 = x;
+                        });
+                      }),
+                ),
+              ),
+              SizedBox(height: 8.0),
+              Card(
+                elevation: 10.0,
+                child: ListTile(
+                  leading: Icon(FontAwesomeIcons.percent),
+                  title: Text(
+                    'Get 15% cashback up to ₹200',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  subtitle: Text('On purchase of 1kg of Ghee'),
+                  trailing: CircularCheckBox(
+                      activeColor: Colors.green,
+                      value: _promo2,
+                      materialTapTargetSize: MaterialTapTargetSize.padded,
+                      onChanged: (bool x) {
+                        setState(() {
+                          this._promo2 = x;
+                        });
+                      }),
+                ),
+              ),
+              Divider(),
+              SizedBox(height: 8.0),
+              Center(
+                child: Text(
+                  'Select a payment option',
+                  style: TextStyle(
+                    fontSize: 20.0,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              SizedBox(height: 10.0),
+              Card(
+                elevation: 10.0,
+                child: ExpansionTile(
+                  leading: CircularCheckBox(
+                      activeColor: Colors.green,
+                      value: _nfc,
+                      materialTapTargetSize: MaterialTapTargetSize.padded,
+                      onChanged: (bool x) {
+                        setState(() {
+                          this._nfc = x;
+                        });
+                      }),
+                  title: Text("NFC"),
+                  children: <Widget>[
+                    Column(
+                      mainAxisSize: MainAxisSize.max,
+                      children: <Widget>[
+                        Row(
+                          mainAxisSize: MainAxisSize.max,
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: <Widget>[
+                            RaisedButton(
+                              padding: EdgeInsets.all(8.0),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(30.0)),
+                              color: Colors.green,
+                              child: Text('Start nfc'),
+                              onPressed: () {
+                                startNFC();
+                              },
+                            ),
+                            RaisedButton(
+                              padding: EdgeInsets.all(8.0),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(30.0)),
+                              color: Colors.red,
+                              child: Text('Stop nfc'),
+                              onPressed: () {
+                                stopNFC();
+                              },
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 8.0),
+                        Center(
+                          child: Text(
+                              "${_nfcData != null ? _nfcData.status.toString() : ""} \n ${_nfcData != null ? _nfcData.content : ""}"),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              Card(
+                elevation: 10.0,
+                child: ExpansionTile(
+                  leading: CircularCheckBox(
+                      activeColor: Colors.green,
+                      value: _card,
+                      materialTapTargetSize: MaterialTapTargetSize.padded,
+                      onChanged: (bool x) {
+                        setState(() {
+                          this._card = x;
+                        });
+                      }),
+                  title: Text("Card"),
+                  children: <Widget>[
+                    Column(
+                      mainAxisSize: MainAxisSize.max,
+                      children: <Widget>[
+                        Center(
+                          child: RaisedButton(
+                            padding: EdgeInsets.all(8.0),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30.0)),
+                            color: Colors.blue,
+                            child: Text('Scan Card'),
+                            onPressed: () => _scanCard(),
+                          ),
+                        ),
+                        SizedBox(height: 8.0),
+                        this._cardNumber.length > 2
+                            ? Card(
+                                elevation: 10.0,
+                                child: ExpansionTile(
+                                  leading: Icon(Icons.person),
+                                  title: Text(_cardName),
+                                  children: <Widget>[
+                                    ListTile(
+                                      title: Text(_cardNumber),
+                                      leading: Icon(Icons.credit_card),
+                                    ),
+                                    ListTile(
+                                      title: Text(_cardDate),
+                                      leading: Icon(Icons.date_range),
+                                      trailing: Container(
+                                        height: 40,
+                                        width: 80,
+                                        child: TextField(
+                                          maxLines: 1,
+                                          keyboardType: TextInputType.number,
+                                          decoration: InputDecoration(
+                                            hintText: 'CVV',
+                                            border: OutlineInputBorder(),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              )
+                            : SizedBox(),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ],
           )

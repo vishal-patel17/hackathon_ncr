@@ -223,7 +223,7 @@ class _MyHomePageState extends State<MyHomePage> {
               width: 300.0,
               height: 40.0,
               child: SignInButtonBuilder(
-                text: 'Sign in with Email and Password',
+                text: 'Sign in with Email',
                 icon: Icons.email,
                 onPressed: () {
                   if (_formKey.currentState.validate()) {
