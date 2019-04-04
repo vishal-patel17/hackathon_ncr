@@ -1,3 +1,4 @@
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -30,6 +31,21 @@ class _HomeState extends State<Home> {
   List<PlacesSearchResult> places = [];
 
   String errorMessage;
+
+  List<Image> _promoImages = [
+    Image.asset(
+      'assets/promo1.jpg',
+      fit: BoxFit.cover,
+    ),
+    Image.asset(
+      'assets/promo2.jpg',
+      fit: BoxFit.cover,
+    ),
+    Image.asset(
+      'assets/promo3.jpg',
+      fit: BoxFit.cover,
+    ),
+  ];
 
   @override
   void initState() {
@@ -79,9 +95,12 @@ class _HomeState extends State<Home> {
 
   _getNearbyPlaces() async {
     final location = Location(_center.latitude, _center.longitude);
-    final result = await _places.searchNearbyWithRadius(location, 5000,
-        name: 'metro wholesale',
-        type: 'grocery_or_supermarket point_of_interest');
+    final result = await _places.searchNearbyWithRadius(
+      location,
+      9000,
+      name: 'metro cash and carry wholesaler',
+      type: 'grocery supermarket store',
+    );
 
     setState(() {
       if (result.status == "OK") {
@@ -118,49 +137,25 @@ class _HomeState extends State<Home> {
     if (f.photos != null) {
       final photos = f.photos;
       list.add(
-        SizedBox(
-          height: 100.0,
-          child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              itemCount: photos.length,
-              itemBuilder: (context, index) {
-                return Padding(
-                  padding: EdgeInsets.only(right: 1.0),
-                  child: SizedBox(
-                    height: 200,
-                    child: CachedNetworkImage(
-                      imageUrl: buildPhotoURL(photos[index].photoReference),
-                      placeholder: (context, url) => Icon(
-                            FontAwesomeIcons.building,
-                            size: 70.0,
-                          ),
-                      errorWidget: (context, url, error) => Icon(
-                            FontAwesomeIcons.building,
-                            size: 70.0,
-                          ),
-                    ),
-                  ),
-                );
-              }),
+        Align(
+          alignment: Alignment.topLeft,
+          child: CachedNetworkImage(
+            width: 400.0,
+            height: 100.0,
+            imageUrl: buildPhotoURL(photos[0].photoReference),
+            placeholder: (context, url) => SizedBox(),
+            errorWidget: (context, url, error) => SizedBox(),
+          ),
         ),
       );
     } else {
       list.add(
         Align(
           alignment: Alignment.topLeft,
-          child: SizedBox(
-            height: 200,
-            child: CachedNetworkImage(
-              imageUrl: '',
-              placeholder: (context, url) => Icon(
-                    FontAwesomeIcons.building,
-                    size: 70.0,
-                  ),
-              errorWidget: (context, url, error) => Icon(
-                    FontAwesomeIcons.building,
-                    size: 70.0,
-                  ),
-            ),
+          child: CachedNetworkImage(
+            imageUrl: '',
+            placeholder: (context, url) => SizedBox(),
+            errorWidget: (context, url, error) => SizedBox(),
           ),
         ),
       );
@@ -240,20 +235,40 @@ class _HomeState extends State<Home> {
         },
       ),
     );
-//    if (f.formattedAddress != null) {
-//      list.add(
-//        Padding(
-//          padding:
-//              EdgeInsets.only(top: 4.0, left: 8.0, right: 8.0, bottom: 4.0),
-//          child: Text(
-//            f.formattedAddress,
-//            style: Theme.of(context).textTheme.body1,
-//          ),
-//        ),
-//      );
-//    }
 
     list.add(SizedBox(height: 10.0));
+
+    list.add(
+      CarouselSlider(
+        autoPlay: true,
+        autoPlayInterval: Duration(seconds: 1),
+        autoPlayAnimationDuration: Duration(seconds: 1),
+        height: 120.0,
+        items: [1, 2, 3].map((i) {
+          return Builder(
+            builder: (BuildContext context) {
+              return Stack(
+                children: <Widget>[
+                  Container(
+                    width: MediaQuery.of(context).size.width / 2,
+                    margin: EdgeInsets.symmetric(horizontal: 5.0),
+                    decoration: BoxDecoration(color: Colors.amber),
+                    child: _promoImages[i - 1],
+                  ),
+                  Align(
+                    alignment: Alignment.bottomCenter,
+                    child: Text(''),
+                  ),
+                ],
+              );
+            },
+          );
+        }).toList(),
+      ),
+    );
+    list.add(SizedBox(
+      height: 8.0,
+    ));
 
     list.add(
       Padding(
@@ -426,6 +441,18 @@ class _MyCartState extends State<MyCart> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: Colors.green,
+        child: Text('Pay'),
+        onPressed: () {
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => Checkout(),
+              ));
+        },
+      ),
       appBar: AppBar(
         title: Text('My Cart'),
         backgroundColor: Colors.red,
@@ -535,12 +562,13 @@ class _MyCartState extends State<MyCart> {
             return Center(
               child: Text('Error: ${snapshot.error}'),
             );
-          if (!snapshot.hasData)
+          if (!snapshot.hasData) {
             return Center(
               child: CircularProgressIndicator(
                 valueColor: AlwaysStoppedAnimation<Color>(Colors.red),
               ),
             );
+          }
           switch (snapshot.connectionState) {
             case ConnectionState.waiting:
               return Center(
@@ -550,10 +578,9 @@ class _MyCartState extends State<MyCart> {
               return snapshot.data.documents.length > 0
                   ? Padding(
                       padding: const EdgeInsets.all(8.0),
-                      child: Column(
+                      child: ListView(
                         children: <Widget>[
-                          ListView(
-                            shrinkWrap: true,
+                          Column(
                             children: snapshot.data.documents
                                 .map((DocumentSnapshot document) {
                               return Padding(
@@ -607,32 +634,6 @@ class _MyCartState extends State<MyCart> {
                                 ),
                               );
                             }).toList(),
-                          ),
-                          Expanded(
-                            child: Align(
-                              alignment: Alignment.bottomCenter,
-                              child: RaisedButton(
-                                  padding: EdgeInsets.all(20.0),
-                                  elevation: 8.0,
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius:
-                                          new BorderRadius.circular(30.0)),
-                                  color: Colors.green,
-                                  child: Text(
-                                    'Proceed to checkout',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 20.0,
-                                    ),
-                                  ),
-                                  onPressed: () {
-                                    Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => Checkout(),
-                                        ));
-                                  }),
-                            ),
                           ),
                         ],
                       ),
@@ -760,6 +761,9 @@ class _BookDeliveryState extends State<BookDelivery> {
                       if (date.hour >= DateTime.now().hour + 2) {
                         this._isPremium = true;
                       }
+                      if (date.day != DateTime.now().day) {
+                        this._isPremium = true;
+                      }
                     });
                   },
                 ),
@@ -794,18 +798,23 @@ class _BookDeliveryState extends State<BookDelivery> {
                 ),
               ),
               SizedBox(height: 12.0),
-              RaisedButton(
-                padding: EdgeInsets.all(25.0),
-                elevation: 10.0,
-                child: Text(
-                  'Go Premium',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 17.0,
+              Padding(
+                padding: const EdgeInsets.only(left: 20.0, right: 20.0),
+                child: RaisedButton(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: new BorderRadius.circular(30.0)),
+                  padding: EdgeInsets.all(25.0),
+                  elevation: 10.0,
+                  child: Text(
+                    'Go Premium',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 17.0,
+                    ),
                   ),
+                  color: Colors.green,
+                  onPressed: () {},
                 ),
-                color: Colors.green,
-                onPressed: () {},
               ),
             ],
           ),

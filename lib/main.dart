@@ -221,7 +221,7 @@ class _MyHomePageState extends State<MyHomePage> {
           Center(
             child: Container(
               width: 300.0,
-              height: 40.0,
+              height: 50.0,
               child: SignInButtonBuilder(
                 text: 'Sign in with Email',
                 icon: Icons.email,
@@ -241,7 +241,7 @@ class _MyHomePageState extends State<MyHomePage> {
             children: <Widget>[
               Container(
                 width: 300.0,
-                height: 40.0,
+                height: 50.0,
 //                color: Colors.red,
                 child: GoogleSignInButton(
                     text: 'Sign in with Google', onPressed: () {}),
@@ -249,7 +249,7 @@ class _MyHomePageState extends State<MyHomePage> {
               SizedBox(height: 18.0),
               Container(
                 width: 300.0,
-                height: 40.0,
+                height: 50.0,
                 child: FacebookSignInButton(
                     text: 'Sign in with Facebook', onPressed: () {}),
               ),
