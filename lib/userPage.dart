@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:geolocator/geolocator.dart';
@@ -12,7 +13,6 @@ import 'package:ncr_hachathon/home.dart';
 import 'package:ncr_hachathon/main.dart';
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'package:ncr_hachathon/shoppingList.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class Home extends StatefulWidget {
   _HomeState createState() => _HomeState();
@@ -80,7 +80,8 @@ class _HomeState extends State<Home> {
   _getNearbyPlaces() async {
     final location = Location(_center.latitude, _center.longitude);
     final result = await _places.searchNearbyWithRadius(location, 5000,
-        name: 'metro', type: 'store');
+        name: 'metro wholesale',
+        type: 'grocery_or_supermarket point_of_interest');
 
     setState(() {
       if (result.status == "OK") {
@@ -181,7 +182,7 @@ class _HomeState extends State<Home> {
           padding:
               EdgeInsets.only(top: 4.0, left: 8.0, right: 8.0, bottom: 0.0),
           child: Text(
-            f.types.first.toUpperCase(),
+            f.types.first,
             style: Theme.of(context).textTheme.caption,
           ),
         ),
@@ -359,7 +360,7 @@ class _HomeState extends State<Home> {
                   markers: _markers,
                   initialCameraPosition: CameraPosition(
                     target: _center,
-                    zoom: 13.0,
+                    zoom: 12.0,
                   ),
                 ),
                 Align(
@@ -652,42 +653,30 @@ class BookDelivery extends StatefulWidget {
 }
 
 class _BookDeliveryState extends State<BookDelivery> {
-  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
   bool _isPremium = false;
 
   @override
   void initState() {
     super.initState();
-    var initializationSettingAndroid =
-        new AndroidInitializationSettings('@mipmap/ic_launcher');
-    var initializationSettingIOS = new IOSInitializationSettings();
-    var initializationSettings = new InitializationSettings(
-        initializationSettingAndroid, initializationSettingIOS);
-
-    flutterLocalNotificationsPlugin = new FlutterLocalNotificationsPlugin();
-    flutterLocalNotificationsPlugin.initialize(initializationSettings,
-        onSelectNotification: onSelectNotification);
+    final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
+    _firebaseMessaging.configure(
+      onMessage: (Map<String, dynamic> message) async {
+        print('on message $message');
+      },
+      onResume: (Map<String, dynamic> message) async {
+        print('on resume $message');
+      },
+      onLaunch: (Map<String, dynamic> message) async {
+        print('on launch $message');
+      },
+    );
+    _firebaseMessaging.getToken().then((token) {
+      print(token);
+    });
   }
 
   Future onSelectNotification(String payload) async {
     return ShoppingList();
-  }
-
-  Future _showNotificationsWithDefaultSound() async {
-    var scheduledNotificationDateTime = date.subtract(Duration(hours: 24));
-    var androidPlatformChannelSpecifics = new AndroidNotificationDetails(
-        'your other channel id',
-        'your other channel name',
-        'your other channel description');
-    var iOSPlatformChannelSpecifics = new IOSNotificationDetails();
-    NotificationDetails platformChannelSpecifics = new NotificationDetails(
-        androidPlatformChannelSpecifics, iOSPlatformChannelSpecifics);
-    await flutterLocalNotificationsPlugin.schedule(
-        0,
-        'scheduled title',
-        'scheduled body',
-        scheduledNotificationDateTime,
-        platformChannelSpecifics);
   }
 
   final formats = {
@@ -825,7 +814,7 @@ class _BookDeliveryState extends State<BookDelivery> {
                   children: <Widget>[
                     GestureDetector(
                       onTap: () {
-                        _showNotificationsWithDefaultSound();
+                        print(date.add(Duration(minutes: 6)));
                         _isPremium
                             ? Navigator.push(
                                 context,
