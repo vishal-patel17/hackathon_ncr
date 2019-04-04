@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'dart:math';
+import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:flutter_nfc_reader/flutter_nfc_reader.dart';
 
@@ -12,6 +12,7 @@ import 'package:unicorndial/unicorndial.dart';
 import 'package:flushbar/flushbar.dart';
 import 'package:firebase_ml_vision/firebase_ml_vision.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 
 class ShoppingList extends StatefulWidget {
   @override
@@ -831,7 +832,10 @@ class _CheckoutState extends State<Checkout> {
                   style: TextStyle(
                     color: Colors.white,
                   )),
-              onPressed: () {},
+              onPressed: () {
+                Navigator.push(
+                    context, MaterialPageRoute(builder: (context) => QR()));
+              },
             ),
           ],
         ),
@@ -1024,6 +1028,88 @@ class _CheckoutState extends State<Checkout> {
               ),
             ],
           )
+        ],
+      ),
+    );
+  }
+}
+
+class QR extends StatefulWidget {
+  @override
+  _QRState createState() => _QRState();
+}
+
+class _QRState extends State<QR> {
+  Future<String> _barcodeString;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.red,
+        title: Text(
+          'THANK YOU',
+          style: TextStyle(
+            color: Colors.white,
+          ),
+        ),
+        centerTitle: true,
+      ),
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Row(
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            RaisedButton(
+              padding: EdgeInsets.all(18.0),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30.0)),
+              color: Colors.blue,
+              child: Text(
+                'EDIT DELIVERY',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 20.0,
+                ),
+              ),
+              onPressed: () {},
+            ),
+          ],
+        ),
+      ),
+      body: Column(
+        mainAxisSize: MainAxisSize.max,
+        children: <Widget>[
+          SizedBox(height: 10.0),
+          Text(
+            'PLEASE PROCEED TO THE TILL \nTO COMPLETE YOUR SHOPPING',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 22.0,
+            ),
+          ),
+          SizedBox(height: 8.0),
+          Expanded(
+            child: Align(
+              alignment: Alignment.center,
+              child: Center(
+                child: QrImage(
+                  data:
+                      "Tomato-12kg,Potato-5kg,Onion-30kg,pmt id-SuperShopper12345678900987654321",
+                  foregroundColor: Colors.black,
+                  size: 300.0,
+                ),
+              ),
+            ),
+          ),
+          FutureBuilder<String>(
+            future: _barcodeString,
+            builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
+              return Text(snapshot.data != null ? snapshot.data : '');
+            },
+          ),
         ],
       ),
     );
