@@ -754,7 +754,7 @@ class _BookDeliveryState extends State<BookDelivery> {
                 setState(() {
                   date = dt;
                   this._isPremium = false;
-                  if (date.day != DateTime.now().day) {
+                  if (date.hour >= DateTime.now().hour + 2) {
                     this._isPremium = true;
                   }
                 });
@@ -764,7 +764,8 @@ class _BookDeliveryState extends State<BookDelivery> {
           SizedBox(height: 8.0),
           date == null
               ? SizedBox()
-              : date.day == DateTime.now().day
+              : date.day == DateTime.now().day &&
+                      date.hour <= DateTime.now().hour + 2
                   ? Text(
                       '* Available only for premium members.',
                       style: TextStyle(
@@ -814,7 +815,6 @@ class _BookDeliveryState extends State<BookDelivery> {
                   children: <Widget>[
                     GestureDetector(
                       onTap: () {
-                        print(date.add(Duration(minutes: 6)));
                         _isPremium
                             ? Navigator.push(
                                 context,
