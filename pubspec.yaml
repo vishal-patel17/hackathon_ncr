@@ -73,6 +73,7 @@ flutter:
     - assets/promo1.jpg
     - assets/promo2.jpg
     - assets/promo3.jpg
+    - assets/background.jpg
 
   #  - images/a_dot_burr.jpeg
   #  - images/a_dot_ham.jpeg

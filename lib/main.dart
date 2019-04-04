@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:flutter_auth_buttons/flutter_auth_buttons.dart';
 import 'package:flutter_signin_button/flutter_signin_button.dart';
@@ -8,7 +9,6 @@ import 'package:ncr_hachathon/userPage.dart';
 void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -29,14 +29,6 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   var localAuth = new LocalAuthentication();
 
-  bool _isObscured = true;
-  Color _eyeButtonColor = Colors.grey;
-  final _formKey = GlobalKey<FormState>();
-  var passKey = GlobalKey<FormFieldState>();
-  var emailKey = GlobalKey<FormFieldState>();
-  String _email;
-  String _password;
-
   @override
   void initState() {
     super.initState();
@@ -52,6 +44,148 @@ class _MyHomePageState extends State<MyHomePage> {
         localizedReason: 'Please authenticate to login');
     return didAuthenticate;
   }
+
+  Widget buildSignUpButton(BuildContext context) {
+    return OutlineButton(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(40.0)),
+      borderSide: BorderSide(color: Colors.transparent),
+      highlightedBorderColor: Colors.transparent,
+      onPressed: () {},
+      child: Text(
+        'Create an account',
+        style: TextStyle(
+          fontStyle: FontStyle.italic,
+          fontFamily: 'NotoSerif',
+          color: Colors.black,
+          fontSize: 20.0,
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Container(
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage("assets/background.jpg"),
+            fit: BoxFit.cover,
+          ),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: <Widget>[
+            Expanded(
+              flex: 6,
+              child: Align(
+                alignment: Alignment.center,
+                child: ListView(
+                  shrinkWrap: true,
+                  children: <Widget>[
+                    Center(
+                      child: Text(
+                        'Login using fingerprint',
+                        style: TextStyle(color: Colors.black, fontSize: 22.0),
+                      ),
+                    ),
+                    SizedBox(height: 28.0),
+                    GestureDetector(
+                      onTap: () {
+                        _checkBiometrics().then((value) {
+                          if (value) {
+                            _fingerprintAuth().then((value) {
+                              if (value) {
+                                Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => Home()),
+                                );
+                              }
+                            });
+                          }
+                        });
+                      },
+                      child: Container(
+                        child: Center(
+                          child: Icon(
+                            Icons.fingerprint,
+                            size: 60.0,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 60.0),
+                    Center(
+                      child: Text(
+                        'OR',
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20.0,
+                            color: Colors.black54),
+                      ),
+                    ),
+                    Row(
+                      mainAxisSize: MainAxisSize.max,
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: <Widget>[
+                        IconButton(
+                          icon: Icon(FontAwesomeIcons.envelope),
+                          onPressed: () {
+                            Navigator.of(context).push(MaterialPageRoute(
+                                builder: (context) => EmailLogin()));
+                          },
+                        ),
+                        IconButton(
+                          icon: Icon(FontAwesomeIcons.google),
+                          onPressed: () {},
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            Expanded(
+              child: Align(
+                alignment: Alignment.bottomCenter,
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 18.0),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: <Widget>[
+                      Text('New member?'),
+                      buildSignUpButton(context),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class EmailLogin extends StatefulWidget {
+  @override
+  _EmailLoginState createState() => _EmailLoginState();
+}
+
+class _EmailLoginState extends State<EmailLogin> {
+  bool _isObscured = true;
+  Color _eyeButtonColor = Colors.grey;
+  final _formKey = GlobalKey<FormState>();
+  var passKey = GlobalKey<FormFieldState>();
+  var emailKey = GlobalKey<FormFieldState>();
+  String _email;
+  // ignore: unused_field
+  String _password;
 
   TextFormField buildEmailTextField() {
     return TextFormField(
@@ -193,8 +327,9 @@ class _MyHomePageState extends State<MyHomePage> {
       child: Text(
         'Create an account',
         style: TextStyle(
+          fontStyle: FontStyle.italic,
           fontFamily: 'NotoSerif',
-          color: Colors.red[700],
+          color: Colors.black,
           fontSize: 20.0,
         ),
       ),
@@ -223,6 +358,7 @@ class _MyHomePageState extends State<MyHomePage> {
               width: 300.0,
               height: 50.0,
               child: SignInButtonBuilder(
+                elevation: 8.0,
                 text: 'Sign in with Email',
                 icon: Icons.email,
                 onPressed: () {
@@ -235,26 +371,6 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
           ),
           SizedBox(height: 18.0),
-          Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            mainAxisSize: MainAxisSize.max,
-            children: <Widget>[
-              Container(
-                width: 300.0,
-                height: 50.0,
-//                color: Colors.red,
-                child: GoogleSignInButton(
-                    text: 'Sign in with Google', onPressed: () {}),
-              ),
-              SizedBox(height: 18.0),
-              Container(
-                width: 300.0,
-                height: 50.0,
-                child: FacebookSignInButton(
-                    text: 'Sign in with Facebook', onPressed: () {}),
-              ),
-            ],
-          ),
         ],
       ),
     );
@@ -263,85 +379,26 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        leading: SizedBox(),
-        title: Text('SuperStore'),
-        centerTitle: true,
-        backgroundColor: Colors.red,
-      ),
-      bottomNavigationBar: Padding(
-        padding: EdgeInsets.all(8.0),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-            Text('New member?'),
-            buildSignUpButton(context),
-          ],
+      body: Container(
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage("assets/background.jpg"),
+            fit: BoxFit.cover,
+          ),
         ),
-      ),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        mainAxisSize: MainAxisSize.max,
-//        crossAxisAlignment: CrossAxisAlignment.center,
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Align(
-              alignment: Alignment.topCenter,
-              child: Text(
-                'Login using fingerprint',
-                style: TextStyle(color: Colors.black, fontSize: 22.0),
+        child: Center(
+          child: Padding(
+            padding:
+                const EdgeInsets.symmetric(vertical: 50.0, horizontal: 8.0),
+            child: Card(
+              elevation: 10.0,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: loginForm(),
               ),
             ),
           ),
-          SizedBox(height: 20.0),
-          GestureDetector(
-            onTap: () {
-              _checkBiometrics().then((value) {
-                if (value) {
-                  _fingerprintAuth().then((value) {
-                    if (value) {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(builder: (context) => Home()),
-                      );
-                    }
-                  });
-                }
-              });
-            },
-            child: Container(
-              child: Center(
-                child: Icon(
-                  Icons.fingerprint,
-                  size: 60.0,
-                  color: Colors.red[600],
-                ),
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(top: 40.0),
-            child: Text(
-              'OR',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0),
-            ),
-          ),
-          Expanded(
-            child: ListView(
-              padding: EdgeInsets.all(8.0),
-              shrinkWrap: true,
-              children: <Widget>[
-                Padding(
-                  padding: const EdgeInsets.only(top: 18.0),
-                  child: loginForm(),
-                ),
-              ],
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
