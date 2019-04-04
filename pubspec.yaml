@@ -49,6 +49,7 @@ dev_dependencies:
   firebase_messaging: ^4.0.0+1
   qr_flutter: ^1.1.1
   numberpicker: ^1.0.0
+  smooth_star_rating: ^1.0.2
 
 # For information on the generic Dart part of this file, see the
 # following page: https://www.dartlang.org/tools/pub/pubspec
