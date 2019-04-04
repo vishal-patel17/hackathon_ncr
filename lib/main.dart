@@ -394,7 +394,10 @@ class _EmailLoginState extends State<EmailLogin> {
               elevation: 10.0,
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: loginForm(),
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 30.0),
+                  child: loginForm(),
+                ),
               ),
             ),
           ),

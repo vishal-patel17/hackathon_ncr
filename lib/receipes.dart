@@ -394,7 +394,7 @@ class _MethodsState extends State<Methods> {
                     leading: SizedBox(),
                     bottom: TabBar(
                       labelColor: Colors.black,
-                      indicatorColor: Colors.grey,
+                      indicatorColor: Colors.white,
                       tabs: [
                         Tab(
                           text: 'METHOD',
@@ -425,135 +425,160 @@ class _MethodsState extends State<Methods> {
                           ),
                         ],
                       ),
-                      StreamBuilder<QuerySnapshot>(
-                        stream:
-                            Firestore.instance.collection('ingri').snapshots(),
-                        builder: (BuildContext context,
-                            AsyncSnapshot<QuerySnapshot> snapshot) {
-                          if (snapshot.hasError)
-                            return Center(
-                              child: Text('Error: ${snapshot.error}'),
-                            );
-                          if (!snapshot.hasData)
-                            return Center(
-                              child: Text('No List Found'),
-                            );
-                          switch (snapshot.connectionState) {
-                            case ConnectionState.waiting:
-                              return Center(
-                                child: CircularProgressIndicator(),
-                              );
-                            default:
-                              return snapshot.data.documents.length > 0
-                                  ? Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Column(
-                                        children: <Widget>[
-                                          GridView.count(
-                                            crossAxisCount: 2,
-                                            shrinkWrap: true,
-                                            children: snapshot.data.documents
-                                                .map((DocumentSnapshot
-                                                    document) {
-                                              return Padding(
-                                                padding:
-                                                    const EdgeInsets.all(8.0),
-                                                child: GridTile(
-                                                  header: Center(
-                                                    child: Text(document['name']
-                                                        .toString()),
+                      ListView(
+                        children: <Widget>[
+                          StreamBuilder<QuerySnapshot>(
+                            stream: Firestore.instance
+                                .collection('ingri')
+                                .snapshots(),
+                            builder: (BuildContext context,
+                                AsyncSnapshot<QuerySnapshot> snapshot) {
+                              if (snapshot.hasError)
+                                return Center(
+                                  child: Text('Error: ${snapshot.error}'),
+                                );
+                              if (!snapshot.hasData)
+                                return Center(
+                                  child: Text('No List Found'),
+                                );
+                              switch (snapshot.connectionState) {
+                                case ConnectionState.waiting:
+                                  return Center(
+                                    child: CircularProgressIndicator(),
+                                  );
+                                default:
+                                  return snapshot.data.documents.length > 0
+                                      ? Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Column(
+//                                            shrinkWrap: true,
+                                            children: <Widget>[
+                                              ListView(
+                                                shrinkWrap: true,
+                                                children: <Widget>[
+                                                  GridView.count(
+                                                    crossAxisCount: 2,
+                                                    shrinkWrap: true,
+                                                    children: snapshot
+                                                        .data.documents
+                                                        .map((DocumentSnapshot
+                                                            document) {
+                                                      return Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .all(8.0),
+                                                        child: GridTile(
+                                                          header: Center(
+                                                            child: Text(
+                                                                document['name']
+                                                                    .toString()),
+                                                          ),
+                                                          footer:
+                                                              CircularCheckBox(
+                                                                  activeColor:
+                                                                      Colors
+                                                                          .green,
+                                                                  value: document[
+                                                                      'selected'],
+                                                                  materialTapTargetSize:
+                                                                      MaterialTapTargetSize
+                                                                          .padded,
+                                                                  onChanged:
+                                                                      (bool x) {
+                                                                    setState(
+                                                                        () {
+                                                                      Firestore
+                                                                          .instance
+                                                                          .collection(
+                                                                              'ingri')
+                                                                          .document(
+                                                                              document.documentID)
+                                                                          .updateData({
+                                                                        'selected':
+                                                                            x,
+                                                                      });
+                                                                      if (x) {
+                                                                        Firestore
+                                                                            .instance
+                                                                            .runTransaction((Transaction
+                                                                                transaction) async {
+                                                                          CollectionReference
+                                                                              reference =
+                                                                              Firestore.instance.collection('cart');
+                                                                          await reference
+                                                                              .add({
+                                                                            "name":
+                                                                                document['name']
+                                                                          });
+                                                                        });
+                                                                        Flushbar(
+                                                                          title:
+                                                                              "Info",
+                                                                          message:
+                                                                              "${document['name']} added to cart",
+                                                                          duration:
+                                                                              Duration(seconds: 3),
+                                                                        )..show(
+                                                                            context);
+                                                                      }
+                                                                    });
+                                                                  }),
+                                                          child: Padding(
+                                                            padding:
+                                                                const EdgeInsets
+                                                                    .only(
+                                                              top: 23.0,
+                                                              bottom: 40.0,
+                                                            ),
+                                                            child: Container(
+                                                              width: 50.0,
+                                                              height: 20.0,
+                                                              child: _ingriImages[
+                                                                  document[
+                                                                          'id'] -
+                                                                      1],
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      );
+                                                    }).toList(),
                                                   ),
-                                                  footer: CircularCheckBox(
-                                                      activeColor: Colors.green,
-                                                      value:
-                                                          document['selected'],
-                                                      materialTapTargetSize:
-                                                          MaterialTapTargetSize
-                                                              .padded,
-                                                      onChanged: (bool x) {
-                                                        setState(() {
-                                                          Firestore.instance
-                                                              .collection(
-                                                                  'ingri')
-                                                              .document(document
-                                                                  .documentID)
-                                                              .updateData({
-                                                            'selected': x,
-                                                          });
-                                                          if (x) {
-                                                            Firestore.instance
-                                                                .runTransaction(
-                                                                    (Transaction
-                                                                        transaction) async {
-                                                              CollectionReference
-                                                                  reference =
-                                                                  Firestore
-                                                                      .instance
-                                                                      .collection(
-                                                                          'cart');
-                                                              await reference
-                                                                  .add({
-                                                                "name":
-                                                                    document[
-                                                                        'name']
-                                                              });
-                                                            });
-                                                            Flushbar(
-                                                              title: "Info",
-                                                              message:
-                                                                  "${document['name']} added to cart",
-                                                              duration:
-                                                                  Duration(
-                                                                      seconds:
-                                                                          3),
-                                                            )..show(context);
-                                                          }
-                                                        });
-                                                      }),
-                                                  child: Padding(
-                                                    padding:
-                                                        const EdgeInsets.only(
-                                                      top: 23.0,
-                                                      bottom: 40.0,
-                                                    ),
-                                                    child: Container(
-                                                      width: 50.0,
-                                                      height: 20.0,
-                                                      child: _ingriImages[
-                                                          document['id'] - 1],
-                                                    ),
-                                                  ),
+                                                ],
+                                              ),
+                                              Expanded(
+                                                flex: 0,
+                                                child: Align(
+                                                  alignment:
+                                                      Alignment.bottomCenter,
+                                                  child: RaisedButton(
+                                                      padding:
+                                                          EdgeInsets.all(15.0),
+                                                      shape:
+                                                          RoundedRectangleBorder(
+                                                        borderRadius:
+                                                            new BorderRadius
+                                                                .circular(30.0),
+                                                      ),
+                                                      color: Colors.blue,
+                                                      child: Text(
+                                                        'SELECT ALL',
+                                                        style: TextStyle(
+                                                            color:
+                                                                Colors.white),
+                                                      ),
+                                                      onPressed: () {}),
                                                 ),
-                                              );
-                                            }).toList(),
+                                              ),
+                                            ],
                                           ),
-                                          Expanded(
-                                            child: Align(
-                                              alignment: Alignment.bottomCenter,
-                                              child: RaisedButton(
-                                                  padding: EdgeInsets.all(15.0),
-                                                  shape: RoundedRectangleBorder(
-                                                    borderRadius:
-                                                        new BorderRadius
-                                                            .circular(30.0),
-                                                  ),
-                                                  color: Colors.blue,
-                                                  child: Text(
-                                                    'SELECT ALL',
-                                                    style: TextStyle(
-                                                        color: Colors.white),
-                                                  ),
-                                                  onPressed: () {}),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    )
-                                  : Center(
-                                      child: Text('No items in your cart'),
-                                    );
-                          }
-                        },
+                                        )
+                                      : Center(
+                                          child: Text('No items in your cart'),
+                                        );
+                              }
+                            },
+                          ),
+                        ],
                       ),
                     ],
                   ),

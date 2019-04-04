@@ -171,18 +171,18 @@ class _HomeState extends State<Home> {
       ),
     );
 
-    if (f.types?.first != null) {
-      list.add(
-        Padding(
-          padding:
-              EdgeInsets.only(top: 4.0, left: 8.0, right: 8.0, bottom: 0.0),
-          child: Text(
-            f.types.first,
-            style: Theme.of(context).textTheme.caption,
-          ),
-        ),
-      );
-    }
+//    if (f.types?.first != null) {
+//      list.add(
+//        Padding(
+//          padding:
+//              EdgeInsets.only(top: 4.0, left: 8.0, right: 8.0, bottom: 0.0),
+//          child: Text(
+//            f.types.first,
+//            style: Theme.of(context).textTheme.caption,
+//          ),
+//        ),
+//      );
+//    }
 
     if (f.openingHours != null) {
       final openingHour = f.openingHours;

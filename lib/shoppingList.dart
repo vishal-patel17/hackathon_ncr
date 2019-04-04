@@ -77,7 +77,9 @@ class _ShoppingListState extends State<ShoppingList> {
                     );
                   if (!snapshot.hasData)
                     return Center(
-                      child: Text('No List Found'),
+                      child: CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.red),
+                      ),
                     );
                   switch (snapshot.connectionState) {
                     case ConnectionState.waiting:
@@ -224,21 +226,6 @@ class _ShoppingListState extends State<ShoppingList> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: <Widget>[
-//                      Container(
-//                        decoration: BoxDecoration(
-//                            color: Colors.red,
-//                            shape: BoxShape.rectangle,
-//                            borderRadius: BorderRadius.circular(30.0)),
-//                        width: MediaQuery.of(context).size.width - 50.0,
-//                        height: 60.0,
-//                        child: Center(
-//                          child: Text(
-//                            'CONFIRM',
-//                            style:
-//                                TextStyle(color: Colors.white, fontSize: 20.0),
-//                          ),
-//                        ),
-//                      ),
                       SizedBox(height: 8.0),
                       GestureDetector(
                         onTap: () {
@@ -625,13 +612,15 @@ class _InnerListState extends State<InnerList> {
               child: Text('Error: ${snapshot.error}'),
             );
           if (!snapshot.hasData)
-            return Center(
-              child: Text('No List Found'),
+            return CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(Colors.red),
             );
           switch (snapshot.connectionState) {
             case ConnectionState.waiting:
               return Center(
-                child: CircularProgressIndicator(),
+                child: CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.red),
+                ),
               );
             default:
               return Column(
@@ -867,232 +856,228 @@ class _CheckoutState extends State<Checkout> {
         ),
       ),
       body: ListView(
+        padding: EdgeInsets.all(8.0),
+        shrinkWrap: true,
         children: <Widget>[
-          ListView(
-            padding: EdgeInsets.all(8.0),
-            shrinkWrap: true,
-            children: <Widget>[
-              Center(
-                child: Text(
-                  'Available promotion offers:',
+          Center(
+            child: Text(
+              'Available promotion offers:',
+              style: TextStyle(
+                fontSize: 20.0,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          SizedBox(height: 8.0),
+          Card(
+            elevation: 10.0,
+            child: ListTile(
+              leading: Icon(FontAwesomeIcons.percent),
+              title: Text(
+                'Get 10% cashback up to ₹100',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              subtitle: Text('On purchase of 1kg of Tomatoes'),
+              trailing: CircularCheckBox(
+                  activeColor: Colors.green,
+                  value: _promo1,
+                  materialTapTargetSize: MaterialTapTargetSize.padded,
+                  onChanged: (bool x) {
+                    setState(() {
+                      this._promo1 = x;
+                      this._cartTotal = 500;
+                      if (x) {
+                        this._cartTotal = 450;
+                      }
+                    });
+                  }),
+            ),
+          ),
+          SizedBox(height: 8.0),
+          Card(
+            elevation: 10.0,
+            child: ListTile(
+              leading: Icon(FontAwesomeIcons.percent),
+              title: Text(
+                'Get ₹100 cashback',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              subtitle: Text('On purchase of 1kg of Ghee'),
+              trailing: CircularCheckBox(
+                  activeColor: Colors.green,
+                  value: _promo2,
+                  materialTapTargetSize: MaterialTapTargetSize.padded,
+                  onChanged: (bool x) {
+                    setState(() {
+                      this._promo2 = x;
+                      this._cartTotal = 500;
+                      if (x) {
+                        this._cartTotal = 400;
+                      }
+                    });
+                  }),
+            ),
+          ),
+          Divider(),
+          SizedBox(height: 8.0),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Card(
+              color: Colors.green,
+              elevation: 10.0,
+              child: ListTile(
+                title: Text(
+                  'Cart total:',
                   style: TextStyle(
+                    color: Colors.white,
                     fontSize: 20.0,
-                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                leading: Icon(
+                  FontAwesomeIcons.rupeeSign,
+                  color: Colors.white,
+                ),
+                trailing: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    _cartTotal.toString(),
+                    style: TextStyle(
+                        fontSize: 22.0,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white),
                   ),
                 ),
               ),
-              SizedBox(height: 8.0),
-              Card(
-                elevation: 10.0,
-                child: ListTile(
-                  leading: Icon(FontAwesomeIcons.percent),
-                  title: Text(
-                    'Get 10% cashback up to ₹100',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  subtitle: Text('On purchase of 1kg of Tomatoes'),
-                  trailing: CircularCheckBox(
-                      activeColor: Colors.green,
-                      value: _promo1,
-                      materialTapTargetSize: MaterialTapTargetSize.padded,
-                      onChanged: (bool x) {
-                        setState(() {
-                          this._promo1 = x;
-                          this._cartTotal = 500;
-                          if (x) {
-                            this._cartTotal = 450;
-                          }
-                        });
-                      }),
-                ),
+            ),
+          ),
+          SizedBox(height: 8.0),
+          Center(
+            child: Text(
+              'Select a payment option',
+              style: TextStyle(
+                fontSize: 20.0,
+                fontWeight: FontWeight.bold,
               ),
-              SizedBox(height: 8.0),
-              Card(
-                elevation: 10.0,
-                child: ListTile(
-                  leading: Icon(FontAwesomeIcons.percent),
-                  title: Text(
-                    'Get ₹100 cashback',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  subtitle: Text('On purchase of 1kg of Ghee'),
-                  trailing: CircularCheckBox(
-                      activeColor: Colors.green,
-                      value: _promo2,
-                      materialTapTargetSize: MaterialTapTargetSize.padded,
-                      onChanged: (bool x) {
-                        setState(() {
-                          this._promo2 = x;
-                          this._cartTotal = 500;
-                          if (x) {
-                            this._cartTotal = 400;
-                          }
-                        });
-                      }),
-                ),
-              ),
-              Divider(),
-              SizedBox(height: 8.0),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Card(
-                  color: Colors.green,
-                  elevation: 10.0,
-                  child: ListTile(
-                    title: Text(
-                      'Cart total:',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 20.0,
-                      ),
-                    ),
-                    leading: Icon(
-                      FontAwesomeIcons.rupeeSign,
-                      color: Colors.white,
-                    ),
-                    trailing: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(
-                        _cartTotal.toString(),
-                        style: TextStyle(
-                            fontSize: 22.0,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              SizedBox(height: 8.0),
-              Center(
-                child: Text(
-                  'Select a payment option',
-                  style: TextStyle(
-                    fontSize: 20.0,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              SizedBox(height: 10.0),
-              Card(
-                elevation: 10.0,
-                child: ExpansionTile(
-                  leading: CircularCheckBox(
-                      activeColor: Colors.green,
-                      value: _nfc,
-                      materialTapTargetSize: MaterialTapTargetSize.padded,
-                      onChanged: (bool x) {
-                        setState(() {
-                          this._nfc = x;
-                        });
-                      }),
-                  title: Text("NFC"),
+            ),
+          ),
+          SizedBox(height: 10.0),
+          Card(
+            elevation: 10.0,
+            child: ExpansionTile(
+              leading: CircularCheckBox(
+                  activeColor: Colors.green,
+                  value: _nfc,
+                  materialTapTargetSize: MaterialTapTargetSize.padded,
+                  onChanged: (bool x) {
+                    setState(() {
+                      this._nfc = x;
+                    });
+                  }),
+              title: Text("NFC"),
+              children: <Widget>[
+                Column(
+                  mainAxisSize: MainAxisSize.max,
                   children: <Widget>[
-                    Column(
+                    Row(
                       mainAxisSize: MainAxisSize.max,
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: <Widget>[
-                        Row(
-                          mainAxisSize: MainAxisSize.max,
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: <Widget>[
-                            RaisedButton(
-                              padding: EdgeInsets.all(8.0),
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(30.0)),
-                              color: Colors.green,
-                              child: Text('Start nfc'),
-                              onPressed: () {
-                                startNFC();
-                              },
-                            ),
-                            RaisedButton(
-                              padding: EdgeInsets.all(8.0),
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(30.0)),
-                              color: Colors.red,
-                              child: Text('Stop nfc'),
-                              onPressed: () {
-                                stopNFC();
-                              },
-                            ),
-                          ],
+                        RaisedButton(
+                          padding: EdgeInsets.all(8.0),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30.0)),
+                          color: Colors.green,
+                          child: Text('Start nfc'),
+                          onPressed: () {
+                            startNFC();
+                          },
                         ),
-                        SizedBox(height: 8.0),
-                        Center(
-                          child: Text(
-                              "${_nfcData != null ? _nfcData.status.toString() : ""} \n ${_nfcData != null ? _nfcData.content : ""}"),
+                        RaisedButton(
+                          padding: EdgeInsets.all(8.0),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30.0)),
+                          color: Colors.red,
+                          child: Text('Stop nfc'),
+                          onPressed: () {
+                            stopNFC();
+                          },
                         ),
                       ],
                     ),
+                    SizedBox(height: 8.0),
+                    Center(
+                      child: Text(
+                          "${_nfcData != null ? _nfcData.status.toString() : ""} \n ${_nfcData != null ? _nfcData.content : ""}"),
+                    ),
                   ],
                 ),
-              ),
-              Card(
-                elevation: 10.0,
-                child: ExpansionTile(
-                  leading: CircularCheckBox(
-                      activeColor: Colors.green,
-                      value: _card,
-                      materialTapTargetSize: MaterialTapTargetSize.padded,
-                      onChanged: (bool x) {
-                        setState(() {
-                          this._card = x;
-                        });
-                      }),
-                  title: Text("Card"),
+              ],
+            ),
+          ),
+          Card(
+            elevation: 10.0,
+            child: ExpansionTile(
+              leading: CircularCheckBox(
+                  activeColor: Colors.green,
+                  value: _card,
+                  materialTapTargetSize: MaterialTapTargetSize.padded,
+                  onChanged: (bool x) {
+                    setState(() {
+                      this._card = x;
+                    });
+                  }),
+              title: Text("Card"),
+              children: <Widget>[
+                Column(
+                  mainAxisSize: MainAxisSize.max,
                   children: <Widget>[
-                    Column(
-                      mainAxisSize: MainAxisSize.max,
-                      children: <Widget>[
-                        Center(
-                          child: RaisedButton(
-                            padding: EdgeInsets.all(8.0),
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(30.0)),
-                            color: Colors.blue,
-                            child: Text('Scan Card'),
-                            onPressed: () => _scanCard(),
-                          ),
-                        ),
-                        SizedBox(height: 8.0),
-                        this._cardNumber.length > 2
-                            ? Card(
-                                elevation: 10.0,
-                                child: ExpansionTile(
-                                  leading: Icon(Icons.person),
-                                  title: Text(_cardName),
-                                  children: <Widget>[
-                                    ListTile(
-                                      title: Text(_cardNumber),
-                                      leading: Icon(Icons.credit_card),
-                                    ),
-                                    ListTile(
-                                      title: Text(_cardDate),
-                                      leading: Icon(Icons.date_range),
-                                      trailing: Container(
-                                        height: 40,
-                                        width: 80,
-                                        child: TextField(
-                                          maxLines: 1,
-                                          keyboardType: TextInputType.number,
-                                          decoration: InputDecoration(
-                                            hintText: 'CVV',
-                                            border: OutlineInputBorder(),
-                                          ),
-                                        ),
+                    Center(
+                      child: RaisedButton(
+                        padding: EdgeInsets.all(8.0),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30.0)),
+                        color: Colors.blue,
+                        child: Text('Scan Card'),
+                        onPressed: () => _scanCard(),
+                      ),
+                    ),
+                    SizedBox(height: 8.0),
+                    this._cardNumber.length > 2
+                        ? Card(
+                            elevation: 10.0,
+                            child: ExpansionTile(
+                              leading: Icon(Icons.person),
+                              title: Text(_cardName),
+                              children: <Widget>[
+                                ListTile(
+                                  title: Text(_cardNumber),
+                                  leading: Icon(Icons.credit_card),
+                                ),
+                                ListTile(
+                                  title: Text(_cardDate),
+                                  leading: Icon(Icons.date_range),
+                                  trailing: Container(
+                                    height: 40,
+                                    width: 80,
+                                    child: TextField(
+                                      maxLines: 1,
+                                      keyboardType: TextInputType.number,
+                                      decoration: InputDecoration(
+                                        hintText: 'CVV',
+                                        border: OutlineInputBorder(),
                                       ),
                                     ),
-                                  ],
+                                  ),
                                 ),
-                              )
-                            : SizedBox(),
-                      ],
-                    ),
+                              ],
+                            ),
+                          )
+                        : SizedBox(),
                   ],
                 ),
-              ),
-            ],
-          )
+              ],
+            ),
+          ),
         ],
       ),
     );
