@@ -13,6 +13,7 @@ import 'package:flushbar/flushbar.dart';
 import 'package:firebase_ml_vision/firebase_ml_vision.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import 'package:numberpicker/numberpicker.dart';
 
 class ShoppingList extends StatefulWidget {
   @override
@@ -21,7 +22,6 @@ class ShoppingList extends StatefulWidget {
 
 class _ShoppingListState extends State<ShoppingList> {
   String _listName;
-  bool _checkalue = false;
 
   var _lowerValue = 200.0;
   var _lowerWeekValue = 250.0;
@@ -481,6 +481,25 @@ class InnerList extends StatefulWidget {
 class _InnerListState extends State<InnerList> {
   String _itemName;
   String _barcodeData;
+  int _currentQuantity = 1;
+
+  Future<void> _showDialog() {
+    return showDialog<int>(
+        context: context,
+        builder: (BuildContext context) {
+          return NumberPickerDialog.integer(
+            initialIntegerValue: 1,
+            minValue: 1,
+            maxValue: 10,
+            title: Text("Pick quantity"),
+          );
+        }).then((value) {
+      if (value != null) {
+        setState(() => _currentQuantity = value);
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     var childButtons = List<UnicornButton>();
@@ -630,6 +649,10 @@ class _InnerListState extends State<InnerList> {
                               document['name'],
                               style: TextStyle(fontSize: 20.0),
                             ),
+//                            leading: GestureDetector(
+//                              onTap: () => _showDialog(),
+//                              child: Text(_currentQuantity.toString()),
+//                            ),
                             trailing: IconButton(
                               icon: Icon(
                                 FontAwesomeIcons.times,
@@ -817,9 +840,7 @@ class _CheckoutState extends State<Checkout> {
               color: Colors.red,
               child: Text(
                 'Complete Payment',
-                style: TextStyle(
-                  color: Colors.white,
-                ),
+                style: TextStyle(color: Colors.white, fontSize: 15.0),
               ),
               onPressed: () {},
             ),
@@ -828,10 +849,13 @@ class _CheckoutState extends State<Checkout> {
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(30.0)),
               color: Colors.red,
-              child: Text('Self Pickup',
-                  style: TextStyle(
-                    color: Colors.white,
-                  )),
+              child: Text(
+                'Self Pickup',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 15.0,
+                ),
+              ),
               onPressed: () {
                 Navigator.push(
                     context, MaterialPageRoute(builder: (context) => QR()));

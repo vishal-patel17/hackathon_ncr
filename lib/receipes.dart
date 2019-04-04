@@ -48,15 +48,27 @@ class _ReceipesState extends State<Receipes> {
   List<Text> _foodNames = [
     Text(
       'Pizza',
-      style: TextStyle(color: Colors.black),
+      style: TextStyle(
+        color: Colors.black,
+        fontSize: 25.0,
+        fontStyle: FontStyle.italic,
+      ),
     ),
     Text(
       'Chicken',
-      style: TextStyle(color: Colors.black),
+      style: TextStyle(
+        color: Colors.black,
+        fontSize: 25.0,
+        fontStyle: FontStyle.italic,
+      ),
     ),
     Text(
       'Burger',
-      style: TextStyle(color: Colors.black),
+      style: TextStyle(
+        color: Colors.black,
+        fontSize: 25.0,
+        fontStyle: FontStyle.italic,
+      ),
     ),
   ];
   @override

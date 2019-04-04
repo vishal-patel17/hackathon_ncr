@@ -441,7 +441,7 @@ class _MyCartState extends State<MyCart> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.green,
         child: Text('Pay'),
@@ -698,176 +698,161 @@ class _BookDeliveryState extends State<BookDelivery> {
         elevation: 0.0,
         iconTheme: IconThemeData(color: Colors.black),
       ),
-      body: Column(
-        mainAxisSize: MainAxisSize.max,
-        mainAxisAlignment: MainAxisAlignment.start,
+      body: ListView(
+//        mainAxisSize: MainAxisSize.max,
+//        mainAxisAlignment: MainAxisAlignment.start,
         children: <Widget>[
           Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                Text(
-                  'BOOK DELIVERY',
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 25.0,
-                  ),
-                ),
-                SizedBox(height: 8.0),
-                Text(
-                  'Address:',
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 18.0,
-                  ),
-                ),
-                SizedBox(height: 8.0),
-                Text(
-                  'Building 12C, Raheja Mindspace',
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 18.0,
-                  ),
-                ),
-                SizedBox(height: 8.0),
-                Icon(FontAwesomeIcons.edit),
-                SizedBox(height: 8.0),
-              ],
+            child: Text(
+              'BOOK DELIVERY',
+              style: TextStyle(
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
+                fontSize: 25.0,
+              ),
             ),
           ),
-          ListView(
-            shrinkWrap: true,
-            children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.all(18.0),
-                child: DateTimePickerFormField(
-                  inputType: InputType.both,
-                  format: formats[inputType],
-                  editable: editable,
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(25.0),
-                    ),
-                    labelText: 'Select Date and Time',
-                    hasFloatingPlaceholder: false,
-                  ),
-                  onChanged: (dt) {
-                    setState(() {
-                      date = dt;
-                      this._isPremium = false;
-                      if (date.hour >= DateTime.now().hour + 2) {
-                        this._isPremium = true;
-                      }
-                      if (date.day != DateTime.now().day) {
-                        this._isPremium = true;
-                      }
-                    });
-                  },
-                ),
+          SizedBox(height: 8.0),
+          Center(
+            child: Text(
+              'Address:',
+              style: TextStyle(
+                color: Colors.black,
+                fontSize: 18.0,
               ),
-              SizedBox(height: 8.0),
-              date == null
-                  ? SizedBox()
-                  : date.day == DateTime.now().day &&
-                          date.hour <= DateTime.now().hour + 2
-                      ? Text(
-                          '* Available only for premium members.',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.red,
-                          ),
-                        )
-                      : SizedBox(),
-              SizedBox(height: 8.0),
-              Container(
-                height: 300.0,
-                width: 350.0,
-                child: Card(
-                  color: Colors.white,
-                  elevation: 8.0,
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(
-                      'Please remember to checkout your order before the scheduled time to confirm your delivery slot. Reserving a delivery slot does not guarantee a delivery time - all orders must be checked out in order to confirm delivery.\n\n\n\n\n *Wording to be updated and consistent with online(web) experience.',
-                      style: TextStyle(fontSize: 18.0),
-                    ),
-                  ),
-                ),
-              ),
-              SizedBox(height: 12.0),
-              Padding(
-                padding: const EdgeInsets.only(left: 20.0, right: 20.0),
-                child: RaisedButton(
-                  shape: RoundedRectangleBorder(
-                      borderRadius: new BorderRadius.circular(30.0)),
-                  padding: EdgeInsets.all(25.0),
-                  elevation: 10.0,
-                  child: Text(
-                    'Go Premium',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 17.0,
-                    ),
-                  ),
-                  color: Colors.green,
-                  onPressed: () {},
-                ),
-              ),
-            ],
+            ),
           ),
-          Expanded(
-            child: Align(
-              alignment: Alignment.bottomCenter,
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  mainAxisSize: MainAxisSize.max,
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: <Widget>[
-                    GestureDetector(
-                      onTap: () {
-                        _isPremium
-                            ? Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => UserHomePage()))
-                            : null;
-                      },
-                      child: Container(
-                        decoration: BoxDecoration(
-                            color: Colors.blue,
-                            shape: BoxShape.rectangle,
-                            borderRadius: BorderRadius.circular(30.0)),
-                        width: MediaQuery.of(context).size.width - 50.0,
-                        height: 60.0,
-                        child: Center(
-                          child: Text(
-                            'CONFIRM',
-                            style:
-                                TextStyle(color: Colors.white, fontSize: 20.0),
-                          ),
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 8.0),
-                    Container(
-                      decoration: BoxDecoration(
+          SizedBox(height: 8.0),
+          Center(
+            child: Text(
+              'Building 12C, Raheja Mindspace',
+              style: TextStyle(
+                color: Colors.black,
+                fontSize: 18.0,
+              ),
+            ),
+          ),
+          SizedBox(height: 8.0),
+          Icon(FontAwesomeIcons.edit),
+          SizedBox(height: 8.0),
+          Padding(
+            padding: const EdgeInsets.all(18.0),
+            child: DateTimePickerFormField(
+              inputType: InputType.both,
+              format: formats[inputType],
+              editable: editable,
+              decoration: InputDecoration(
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(25.0),
+                ),
+                labelText: 'Select Date and Time',
+                hasFloatingPlaceholder: false,
+              ),
+              onChanged: (dt) {
+                setState(() {
+                  date = dt;
+                  this._isPremium = false;
+                  if (date.hour >= DateTime.now().hour + 2) {
+                    this._isPremium = true;
+                  }
+                  if (date.day != DateTime.now().day) {
+                    this._isPremium = true;
+                  }
+                });
+              },
+            ),
+          ),
+          SizedBox(height: 8.0),
+          Center(
+            child: date == null
+                ? SizedBox()
+                : date.day == DateTime.now().day &&
+                        date.hour <= DateTime.now().hour + 2
+                    ? Text(
+                        '* Available only for premium members.',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
                           color: Colors.red,
-                          shape: BoxShape.rectangle,
-                          borderRadius: BorderRadius.circular(30.0)),
-                      width: MediaQuery.of(context).size.width - 50.0,
-                      height: 60.0,
-                      child: Center(
-                        child: Text(
-                          'SKIP DELIVERY',
-                          style: TextStyle(color: Colors.white, fontSize: 20.0),
                         ),
-                      ),
-                    ),
-                  ],
+                      )
+                    : SizedBox(),
+          ),
+          SizedBox(height: 8.0),
+          Container(
+            height: 300.0,
+            width: 350.0,
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Card(
+                color: Colors.white,
+                elevation: 10.0,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    'Please remember to checkout your order before the scheduled time to confirm your delivery slot. Reserving a delivery slot does not guarantee a delivery time - all orders must be checked out in order to confirm delivery.\n\n\n\n\n *Wording to be updated and consistent with online(web) experience.',
+                    style: TextStyle(fontSize: 18.0),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          SizedBox(height: 12.0),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Container(
+              decoration: BoxDecoration(
+                  color: Colors.green,
+                  shape: BoxShape.rectangle,
+                  borderRadius: BorderRadius.circular(30.0)),
+              width: MediaQuery.of(context).size.width * 0.2,
+              height: 60.0,
+              child: Center(
+                child: Text(
+                  'GO PREMIUM',
+                  style: TextStyle(color: Colors.white, fontSize: 20.0),
+                ),
+              ),
+            ),
+          ),
+          GestureDetector(
+            onTap: () {
+              _isPremium
+                  ? Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => UserHomePage()))
+                  : null;
+            },
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Container(
+                decoration: BoxDecoration(
+                    color: Colors.blue,
+                    shape: BoxShape.rectangle,
+                    borderRadius: BorderRadius.circular(30.0)),
+                width: MediaQuery.of(context).size.width - 50.0,
+                height: 60.0,
+                child: Center(
+                  child: Text(
+                    'CONFIRM',
+                    style: TextStyle(color: Colors.white, fontSize: 20.0),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          SizedBox(height: 8.0),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Container(
+              decoration: BoxDecoration(
+                  color: Colors.red,
+                  shape: BoxShape.rectangle,
+                  borderRadius: BorderRadius.circular(30.0)),
+              width: MediaQuery.of(context).size.width - 50.0,
+              height: 60.0,
+              child: Center(
+                child: Text(
+                  'SKIP DELIVERY',
+                  style: TextStyle(color: Colors.white, fontSize: 20.0),
                 ),
               ),
             ),
