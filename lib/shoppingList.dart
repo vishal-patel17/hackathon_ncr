@@ -178,8 +178,11 @@ class _ShoppingListState extends State<ShoppingList> {
                                                       reference = Firestore
                                                           .instance
                                                           .collection('cart');
-                                                  await reference.add(
-                                                      {"name": ds['name']});
+                                                  await reference.add({
+                                                    "name": ds['name'],
+                                                    "quantity": ds['quantity'],
+                                                    "unit": ds['unit']
+                                                  });
                                                 });
                                               }
                                             });
@@ -511,6 +514,7 @@ class _InnerListState extends State<InnerList> {
                             "name": _itemName,
                             "quantity": _currentQuantity,
                             "unit": 'kg',
+                            "price": '20'
                           });
                         });
                         Navigator.of(context).pop();
@@ -552,7 +556,12 @@ class _InnerListState extends State<InnerList> {
                     .runTransaction((Transaction transaction) async {
                   CollectionReference reference =
                       Firestore.instance.collection(widget.listName);
-                  await reference.add({"name": _barcodeData});
+                  await reference.add({
+                    "name": _barcodeData,
+                    "quantity": _currentQuantity,
+                    "unit": 'l',
+                    "price": '800',
+                  });
                 });
               });
             } else if (rawValue == ']C10109312345678907') {
@@ -565,7 +574,8 @@ class _InnerListState extends State<InnerList> {
                   await reference.add({
                     "name": _barcodeData,
                     "quantity": _currentQuantity,
-                    "unit": 'kg',
+                    "unit": 'gm',
+                    "price": '200',
                   });
                 });
               });
@@ -622,7 +632,7 @@ class _InnerListState extends State<InnerList> {
                           elevation: 10.0,
                           child: ListTile(
                             title: Row(
-                              mainAxisSize: MainAxisSize.min,
+                              mainAxisSize: MainAxisSize.max,
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: <Widget>[
                                 Text(
@@ -630,8 +640,26 @@ class _InnerListState extends State<InnerList> {
                                   style: TextStyle(fontSize: 20.0),
                                 ),
                                 Spacer(),
-                                Text(document['quantity']),
-                                Text(document['unit']),
+                                Column(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: <Widget>[
+                                    Text(
+                                      "${document['quantity']}${document['unit']}",
+                                    ),
+//                                SizedBox(width: 10.0),
+                                    Card(
+                                      color: Colors.cyan,
+                                      elevation: 10.0,
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(3.0),
+                                        child: Text(
+                                          "Rs ${document['price']}/kg",
+                                          style: TextStyle(fontSize: 12.0),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ],
                             ),
                             leading: IconButton(

@@ -14,6 +14,7 @@ import 'package:ncr_hachathon/home.dart';
 import 'package:ncr_hachathon/main.dart';
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'package:ncr_hachathon/shoppingList.dart';
+import 'package:numberpicker/numberpicker.dart';
 
 class Home extends StatefulWidget {
   _HomeState createState() => _HomeState();
@@ -438,6 +439,32 @@ class MyCart extends StatefulWidget {
 }
 
 class _MyCartState extends State<MyCart> {
+  String _currentQuantity;
+  Future<void> _showDialog(DocumentSnapshot document) {
+    return showDialog<int>(
+        context: context,
+        builder: (BuildContext context) {
+          return NumberPickerDialog.integer(
+            initialIntegerValue: 1,
+            minValue: 1,
+            maxValue: 10,
+            title: Text("Pick quantity"),
+          );
+        }).then((value) {
+      if (value != null) {
+        setState(() {
+          _currentQuantity = value.toString();
+          Firestore.instance
+              .collection('cart')
+              .document(document.documentID)
+              .updateData({
+            'quantity': _currentQuantity,
+          });
+        });
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -588,9 +615,23 @@ class _MyCartState extends State<MyCart> {
                                 child: Card(
                                   elevation: 10.0,
                                   child: ListTile(
-                                    title: Text(
-                                      document['name'],
-                                      style: TextStyle(fontSize: 20.0),
+                                    title: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      children: <Widget>[
+                                        Text(
+                                          document['name'],
+                                          style: TextStyle(fontSize: 20.0),
+                                        ),
+                                        Spacer(),
+                                        Text(document['quantity']),
+                                        Text(document['unit']),
+                                      ],
+                                    ),
+                                    leading: IconButton(
+                                      icon: Icon(FontAwesomeIcons.plus),
+                                      onPressed: () => _showDialog(document),
                                     ),
                                     trailing: IconButton(
                                       icon: Icon(
@@ -788,9 +829,13 @@ class _BookDeliveryState extends State<BookDelivery> {
                 elevation: 10.0,
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    'Please remember to checkout your order before the scheduled time to confirm your delivery slot. Reserving a delivery slot does not guarantee a delivery time - all orders must be checked out in order to confirm delivery.\n\n\n\n\n *Wording to be updated and consistent with online(web) experience.',
-                    style: TextStyle(fontSize: 18.0),
+                  child: ListView(
+                    children: <Widget>[
+                      Text(
+                        'Please remember to checkout your order before the scheduled time to confirm your delivery slot. Reserving a delivery slot does not guarantee a delivery time - all orders must be checked out in order to confirm delivery.\n\n\n\n\n *Wording to be updated and consistent with online(web) experience.',
+                        style: TextStyle(fontSize: 18.0),
+                      ),
+                    ],
                   ),
                 ),
               ),

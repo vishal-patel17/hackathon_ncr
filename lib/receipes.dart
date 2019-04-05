@@ -238,7 +238,10 @@ class _ReceipesState extends State<Receipes> {
                                                           .instance
                                                           .collection('cart');
                                                   await reference.add({
-                                                    "name": document['name']
+                                                    "name": document['name'],
+                                                    "quantity":
+                                                        document['quantity'],
+                                                    "unit": document['unit'],
                                                   });
                                                 });
                                                 Flushbar(
