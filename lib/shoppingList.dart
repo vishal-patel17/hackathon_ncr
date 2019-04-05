@@ -50,273 +50,300 @@ class _ShoppingListState extends State<ShoppingList> {
         ),
         body: TabBarView(children: [
           // List page
-          Column(
-            mainAxisSize: MainAxisSize.max,
-            children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Center(
-                  child: Text(
-                    'Would you like to choose the list: ',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                      fontSize: 20.0,
+          Scaffold(
+            floatingActionButtonLocation:
+                FloatingActionButtonLocation.centerFloat,
+            floatingActionButton: FloatingActionButton(
+                child: Icon(FontAwesomeIcons.plus),
+                onPressed: () {
+                  showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: Text('Enter the name:'),
+                          content: TextField(
+                            textCapitalization: TextCapitalization.sentences,
+                            keyboardType: TextInputType.text,
+                            autofocus: true,
+                            decoration: InputDecoration(
+                              border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(40.0)),
+                            ),
+                            onChanged: (value) {
+                              setState(() {
+                                this._listName = value;
+                              });
+                            },
+                          ),
+                          actions: <Widget>[
+                            FlatButton(
+                              child: Text('Submit'),
+                              onPressed: () {
+                                Firestore.instance.runTransaction(
+                                    (Transaction transaction) async {
+                                  CollectionReference reference = Firestore
+                                      .instance
+                                      .collection('shopping_list');
+                                  await reference.add({
+                                    "list": _listName,
+                                    "selected": false,
+                                  });
+                                });
+                                Navigator.of(context).pop();
+                              },
+                            ),
+                            FlatButton(
+                              child: Text('Dismiss'),
+                              onPressed: () => Navigator.of(context).pop(),
+                            ),
+                          ],
+                        );
+                      });
+                }),
+            body: Column(
+              mainAxisSize: MainAxisSize.max,
+              children: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Center(
+                    child: Text(
+                      'Would you like to choose the list: ',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                        fontSize: 20.0,
+                      ),
                     ),
                   ),
                 ),
-              ),
-              StreamBuilder<QuerySnapshot>(
-                stream:
-                    Firestore.instance.collection('shopping_list').snapshots(),
-                builder: (BuildContext context,
-                    AsyncSnapshot<QuerySnapshot> snapshot) {
-                  if (snapshot.hasError)
-                    return Center(
-                      child: Text('Error: ${snapshot.error}'),
-                    );
-                  if (!snapshot.hasData)
-                    return Center(
-                      child: CircularProgressIndicator(
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.red),
-                      ),
-                    );
-                  switch (snapshot.connectionState) {
-                    case ConnectionState.waiting:
+                StreamBuilder<QuerySnapshot>(
+                  stream: Firestore.instance
+                      .collection('shopping_list')
+                      .snapshots(),
+                  builder: (BuildContext context,
+                      AsyncSnapshot<QuerySnapshot> snapshot) {
+                    if (snapshot.hasError)
                       return Center(
-                        child: CircularProgressIndicator(),
+                        child: Text('Error: ${snapshot.error}'),
                       );
-                    default:
-                      return ListView(
-                        shrinkWrap: true,
-                        children: snapshot.data.documents
-                            .map((DocumentSnapshot document) {
-                          return Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Card(
-                              elevation: 10.0,
-                              child: ListTile(
-                                title: Text(
-                                  document['list'],
-                                  style: TextStyle(fontSize: 20.0),
-                                ),
-                                leading: CircularCheckBox(
-                                    activeColor: Colors.green,
-                                    value: document['selected'],
-                                    materialTapTargetSize:
-                                        MaterialTapTargetSize.padded,
-                                    onChanged: (bool x) {
-                                      setState(() {
-                                        Firestore.instance
-                                            .collection('shopping_list')
-                                            .document(document.documentID)
-                                            .updateData({
-                                          'selected': x,
-                                        });
-                                        if (x) {
+                    if (!snapshot.hasData)
+                      return Center(
+                        child: CircularProgressIndicator(
+                          valueColor: AlwaysStoppedAnimation<Color>(Colors.red),
+                        ),
+                      );
+                    switch (snapshot.connectionState) {
+                      case ConnectionState.waiting:
+                        return Center(
+                          child: CircularProgressIndicator(),
+                        );
+                      default:
+                        return ListView(
+                          shrinkWrap: true,
+                          children: snapshot.data.documents
+                              .map((DocumentSnapshot document) {
+                            return Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Card(
+                                elevation: 10.0,
+                                child: ListTile(
+                                  title: Text(
+                                    document['list'],
+                                    style: TextStyle(fontSize: 20.0),
+                                  ),
+                                  leading: CircularCheckBox(
+                                      activeColor: Colors.green,
+                                      value: document['selected'],
+                                      materialTapTargetSize:
+                                          MaterialTapTargetSize.padded,
+                                      onChanged: (bool x) {
+                                        setState(() {
                                           Firestore.instance
-                                              .collection(document['list'])
-                                              .getDocuments()
-                                              .then((snapshot) {
-                                            for (DocumentSnapshot ds
-                                                in snapshot.documents) {
-                                              Firestore.instance.runTransaction(
-                                                  (Transaction
-                                                      transaction) async {
-                                                CollectionReference reference =
-                                                    Firestore.instance
-                                                        .collection('cart');
-                                                await reference
-                                                    .add({"name": ds['name']});
-                                              });
-                                            }
+                                              .collection('shopping_list')
+                                              .document(document.documentID)
+                                              .updateData({
+                                            'selected': x,
                                           });
-                                          Flushbar(
-                                            title: "Info",
-                                            message:
-                                                "${document['list']} added to cart",
-                                            duration: Duration(seconds: 3),
-                                          )..show(context);
-                                        }
-                                      });
-                                    }),
-                                trailing: ButtonBar(
-                                  alignment: MainAxisAlignment.end,
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: <Widget>[
-                                    IconButton(
-                                      icon: Icon(
-                                        FontAwesomeIcons.edit,
-                                        color: Colors.grey,
-                                      ),
-                                      onPressed: () {
-                                        Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (context) => InnerList(
-                                                    listName: document['list'],
-                                                  ),
-                                            ));
-                                      },
-                                    ),
-                                    IconButton(
-                                      icon: Icon(
-                                        FontAwesomeIcons.times,
-                                        color: Colors.grey,
-                                      ),
-                                      onPressed: () {
-                                        showDialog(
-                                            context: context,
-                                            builder: (BuildContext context) {
-                                              return AlertDialog(
-                                                title: Text("Delete " +
-                                                    document['list'] +
-                                                    " ?"),
-                                                actions: <Widget>[
-                                                  FlatButton(
-                                                    child: Icon(Icons.done),
-                                                    onPressed: () {
-                                                      Firestore.instance
-                                                          .collection(
-                                                              'shopping_list')
-                                                          .document(document
-                                                              .documentID)
-                                                          .delete();
-
-                                                      Firestore.instance
-                                                          .collection(
-                                                              document['list'])
-                                                          .getDocuments()
-                                                          .then((snapshot) {
-                                                        for (DocumentSnapshot ds
-                                                            in snapshot
-                                                                .documents) {
-                                                          ds.reference.delete();
-                                                        }
-                                                      });
-
-                                                      Navigator.pop(context);
-                                                      //refreshPage();
-                                                    },
-                                                  ),
-                                                  FlatButton(
-                                                    child: Icon(Icons.cancel),
-                                                    onPressed: () {
-                                                      Navigator.pop(context);
-                                                    },
-                                                  ),
-                                                ],
-                                              );
+                                          if (x) {
+                                            Firestore.instance
+                                                .collection(document['list'])
+                                                .getDocuments()
+                                                .then((snapshot) {
+                                              for (DocumentSnapshot ds
+                                                  in snapshot.documents) {
+                                                Firestore.instance
+                                                    .runTransaction((Transaction
+                                                        transaction) async {
+                                                  CollectionReference
+                                                      reference = Firestore
+                                                          .instance
+                                                          .collection('cart');
+                                                  await reference.add(
+                                                      {"name": ds['name']});
+                                                });
+                                              }
                                             });
-                                      },
-                                    ),
-                                  ],
+                                            Flushbar(
+                                              title: "Info",
+                                              message:
+                                                  "${document['list']} added to cart",
+                                              duration: Duration(seconds: 3),
+                                            )..show(context);
+                                          }
+                                        });
+                                      }),
+                                  trailing: ButtonBar(
+                                    alignment: MainAxisAlignment.end,
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: <Widget>[
+                                      IconButton(
+                                        icon: Icon(
+                                          FontAwesomeIcons.edit,
+                                          color: Colors.grey,
+                                        ),
+                                        onPressed: () {
+                                          Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) => InnerList(
+                                                      listName:
+                                                          document['list'],
+                                                    ),
+                                              ));
+                                        },
+                                      ),
+                                      IconButton(
+                                        icon: Icon(
+                                          FontAwesomeIcons.times,
+                                          color: Colors.grey,
+                                        ),
+                                        onPressed: () {
+                                          showDialog(
+                                              context: context,
+                                              builder: (BuildContext context) {
+                                                return AlertDialog(
+                                                  title: Text("Delete " +
+                                                      document['list'] +
+                                                      " ?"),
+                                                  actions: <Widget>[
+                                                    FlatButton(
+                                                      child: Icon(Icons.done),
+                                                      onPressed: () {
+                                                        Firestore.instance
+                                                            .collection(
+                                                                'shopping_list')
+                                                            .document(document
+                                                                .documentID)
+                                                            .delete();
+
+                                                        Firestore.instance
+                                                            .collection(
+                                                                document[
+                                                                    'list'])
+                                                            .getDocuments()
+                                                            .then((snapshot) {
+                                                          for (DocumentSnapshot ds
+                                                              in snapshot
+                                                                  .documents) {
+                                                            ds.reference
+                                                                .delete();
+                                                          }
+                                                        });
+
+                                                        Navigator.pop(context);
+                                                        //refreshPage();
+                                                      },
+                                                    ),
+                                                    FlatButton(
+                                                      child: Icon(Icons.cancel),
+                                                      onPressed: () {
+                                                        Navigator.pop(context);
+                                                      },
+                                                    ),
+                                                  ],
+                                                );
+                                              });
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                        );
+                    }
+                  },
+                ),
+              ],
+            ),
+          ),
+          // Budgeting page
+          Scaffold(
+            floatingActionButtonLocation:
+                FloatingActionButtonLocation.centerFloat,
+            floatingActionButton: FloatingActionButton(
+              onPressed: () {},
+              child: Icon(FontAwesomeIcons.save),
+            ),
+            body: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.max,
+              children: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 50.0),
+                    child: Column(
+                      children: <Widget>[
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          mainAxisSize: MainAxisSize.max,
+                          children: <Widget>[
+                            Text('BY SHOP'),
+                            Text(_lowerValue.toString()),
+                          ],
+                        ),
+                        FlutterSlider(
+                          handler: FlutterSliderHandler(
+                            child: Material(
+                              type: MaterialType.circle,
+                              color: Colors.green,
+                              elevation: 1.0,
+                              child: Container(
+                                padding: EdgeInsets.all(5),
+                                child: Icon(
+                                  FontAwesomeIcons.rupeeSign,
+                                  color: Colors.black,
+                                  size: 25,
                                 ),
                               ),
                             ),
-                          );
-                        }).toList(),
-                      );
-                  }
-                },
-              ),
-              Expanded(
-                child: Align(
-                  alignment: Alignment.bottomCenter,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: <Widget>[
-                      SizedBox(height: 8.0),
-                      GestureDetector(
-                        onTap: () {
-                          showDialog(
-                              context: context,
-                              builder: (BuildContext context) {
-                                return AlertDialog(
-                                  title: Text('Enter the name:'),
-                                  content: TextField(
-                                    textCapitalization:
-                                        TextCapitalization.sentences,
-                                    keyboardType: TextInputType.text,
-                                    autofocus: true,
-                                    decoration: InputDecoration(
-                                      border: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(40.0)),
-                                    ),
-                                    onChanged: (value) {
-                                      setState(() {
-                                        this._listName = value;
-                                      });
-                                    },
-                                  ),
-                                  actions: <Widget>[
-                                    FlatButton(
-                                      child: Text('Submit'),
-                                      onPressed: () {
-                                        Firestore.instance.runTransaction(
-                                            (Transaction transaction) async {
-                                          CollectionReference reference =
-                                              Firestore.instance
-                                                  .collection('shopping_list');
-                                          await reference.add({
-                                            "list": _listName,
-                                            "selected": false,
-                                          });
-                                        });
-                                        Navigator.of(context).pop();
-                                      },
-                                    ),
-                                    FlatButton(
-                                      child: Text('Dismiss'),
-                                      onPressed: () =>
-                                          Navigator.of(context).pop(),
-                                    ),
-                                  ],
-                                );
-                              });
-                        },
-                        child: Container(
-                          decoration: BoxDecoration(
-                              color: Colors.blue,
-                              shape: BoxShape.rectangle,
-                              borderRadius: BorderRadius.circular(30.0)),
-                          width: MediaQuery.of(context).size.width - 50.0,
-                          height: 60.0,
-                          child: Center(
-                            child: Text(
-                              'CREATE NEW LIST',
-                              style: TextStyle(
-                                  color: Colors.white, fontSize: 20.0),
-                            ),
                           ),
-                        ),
-                      ),
-                      SizedBox(height: 8.0),
-                    ],
+                          values: [200],
+                          max: 500,
+                          min: 0,
+                          onDragging: (handlerIndex, lowerValue, upperValue) {
+                            _lowerValue = lowerValue;
+                            var _upperValue = upperValue;
+                            setState(() {});
+                          },
+                        )
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ],
-          ),
-          // Budgeting page
-          Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.max,
-            children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 50.0),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
                   child: Column(
                     children: <Widget>[
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         mainAxisSize: MainAxisSize.max,
                         children: <Widget>[
-                          Text('BY SHOP'),
-                          Text(_lowerValue.toString()),
+                          Text('BY WEEK'),
+                          Text(_lowerWeekValue.toString()),
                         ],
                       ),
                       FlutterSlider(
@@ -335,11 +362,11 @@ class _ShoppingListState extends State<ShoppingList> {
                             ),
                           ),
                         ),
-                        values: [200],
+                        values: [250],
                         max: 500,
                         min: 0,
                         onDragging: (handlerIndex, lowerValue, upperValue) {
-                          _lowerValue = lowerValue;
+                          _lowerWeekValue = lowerValue;
                           var _upperValue = upperValue;
                           setState(() {});
                         },
@@ -347,110 +374,48 @@ class _ShoppingListState extends State<ShoppingList> {
                     ],
                   ),
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  children: <Widget>[
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      mainAxisSize: MainAxisSize.max,
-                      children: <Widget>[
-                        Text('BY WEEK'),
-                        Text(_lowerWeekValue.toString()),
-                      ],
-                    ),
-                    FlutterSlider(
-                      handler: FlutterSliderHandler(
-                        child: Material(
-                          type: MaterialType.circle,
-                          color: Colors.green,
-                          elevation: 1.0,
-                          child: Container(
-                            padding: EdgeInsets.all(5),
-                            child: Icon(
-                              FontAwesomeIcons.rupeeSign,
-                              color: Colors.black,
-                              size: 25,
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    children: <Widget>[
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        mainAxisSize: MainAxisSize.max,
+                        children: <Widget>[
+                          Text('BY MONTH'),
+                          Text(_lowerMonthValue.toString()),
+                        ],
+                      ),
+                      FlutterSlider(
+                        handler: FlutterSliderHandler(
+                          child: Material(
+                            type: MaterialType.circle,
+                            color: Colors.green,
+                            elevation: 1.0,
+                            child: Container(
+                              padding: EdgeInsets.all(5),
+                              child: Icon(
+                                FontAwesomeIcons.rupeeSign,
+                                color: Colors.black,
+                                size: 25,
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                      values: [250],
-                      max: 500,
-                      min: 0,
-                      onDragging: (handlerIndex, lowerValue, upperValue) {
-                        _lowerWeekValue = lowerValue;
-                        var _upperValue = upperValue;
-                        setState(() {});
-                      },
-                    )
-                  ],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  children: <Widget>[
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      mainAxisSize: MainAxisSize.max,
-                      children: <Widget>[
-                        Text('BY MONTH'),
-                        Text(_lowerMonthValue.toString()),
-                      ],
-                    ),
-                    FlutterSlider(
-                      handler: FlutterSliderHandler(
-                        child: Material(
-                          type: MaterialType.circle,
-                          color: Colors.green,
-                          elevation: 1.0,
-                          child: Container(
-                            padding: EdgeInsets.all(5),
-                            child: Icon(
-                              FontAwesomeIcons.rupeeSign,
-                              color: Colors.black,
-                              size: 25,
-                            ),
-                          ),
-                        ),
-                      ),
-                      values: [350],
-                      max: 500,
-                      min: 0,
-                      onDragging: (handlerIndex, lowerValue, upperValue) {
-                        _lowerMonthValue = lowerValue;
-                        var _upperValue = upperValue;
-                        setState(() {});
-                      },
-                    )
-                  ],
-                ),
-              ),
-              Expanded(
-                child: Align(
-                  alignment: Alignment.bottomCenter,
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Container(
-                      decoration: BoxDecoration(
-                          color: Colors.blue,
-                          shape: BoxShape.rectangle,
-                          borderRadius: BorderRadius.circular(30.0)),
-                      width: MediaQuery.of(context).size.width - 50.0,
-                      height: 60.0,
-                      child: Center(
-                        child: Text(
-                          'SAVE',
-                          style: TextStyle(color: Colors.white, fontSize: 20.0),
-                        ),
-                      ),
-                    ),
+                        values: [350],
+                        max: 500,
+                        min: 0,
+                        onDragging: (handlerIndex, lowerValue, upperValue) {
+                          _lowerMonthValue = lowerValue;
+                          var _upperValue = upperValue;
+                          setState(() {});
+                        },
+                      )
+                    ],
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ]),
       ),
@@ -468,9 +433,9 @@ class InnerList extends StatefulWidget {
 class _InnerListState extends State<InnerList> {
   String _itemName;
   String _barcodeData;
-  int _currentQuantity = 1;
+  String _currentQuantity = 1.toString();
 
-  Future<void> _showDialog() {
+  Future<void> _showDialog(DocumentSnapshot document) {
     return showDialog<int>(
         context: context,
         builder: (BuildContext context) {
@@ -482,7 +447,15 @@ class _InnerListState extends State<InnerList> {
           );
         }).then((value) {
       if (value != null) {
-        setState(() => _currentQuantity = value);
+        setState(() {
+          _currentQuantity = value.toString();
+          Firestore.instance
+              .collection(widget.listName)
+              .document(document.documentID)
+              .updateData({
+            'quantity': _currentQuantity,
+          });
+        });
       }
     });
   }
@@ -507,19 +480,24 @@ class _InnerListState extends State<InnerList> {
               builder: (BuildContext context) {
                 return AlertDialog(
                   title: Text('Enter the name:'),
-                  content: TextField(
-                    textCapitalization: TextCapitalization.sentences,
-                    keyboardType: TextInputType.text,
-                    autofocus: true,
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(40.0)),
-                    ),
-                    onChanged: (value) {
-                      setState(() {
-                        this._itemName = value;
-                      });
-                    },
+                  content: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      TextField(
+                        textCapitalization: TextCapitalization.sentences,
+                        keyboardType: TextInputType.text,
+                        autofocus: true,
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(40.0)),
+                        ),
+                        onChanged: (value) {
+                          setState(() {
+                            this._itemName = value;
+                          });
+                        },
+                      ),
+                    ],
                   ),
                   actions: <Widget>[
                     FlatButton(
@@ -529,7 +507,11 @@ class _InnerListState extends State<InnerList> {
                             .runTransaction((Transaction transaction) async {
                           CollectionReference reference =
                               Firestore.instance.collection(widget.listName);
-                          await reference.add({"name": _itemName});
+                          await reference.add({
+                            "name": _itemName,
+                            "quantity": _currentQuantity,
+                            "unit": 'kg',
+                          });
                         });
                         Navigator.of(context).pop();
                       },
@@ -580,7 +562,11 @@ class _InnerListState extends State<InnerList> {
                     .runTransaction((Transaction transaction) async {
                   CollectionReference reference =
                       Firestore.instance.collection(widget.listName);
-                  await reference.add({"name": _barcodeData});
+                  await reference.add({
+                    "name": _barcodeData,
+                    "quantity": _currentQuantity,
+                    "unit": 'kg',
+                  });
                 });
               });
             } else {
@@ -598,8 +584,9 @@ class _InnerListState extends State<InnerList> {
         title: Text(widget.listName),
         backgroundColor: Colors.red,
       ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: UnicornDialer(
-          backgroundColor: Color.fromRGBO(255, 255, 255, 0.6),
+          backgroundColor: Colors.transparent,
           parentButtonBackground: Colors.red,
           orientation: UnicornOrientation.VERTICAL,
           parentButton: Icon(Icons.add),
@@ -634,14 +621,23 @@ class _InnerListState extends State<InnerList> {
                         child: Card(
                           elevation: 10.0,
                           child: ListTile(
-                            title: Text(
-                              document['name'],
-                              style: TextStyle(fontSize: 20.0),
+                            title: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: <Widget>[
+                                Text(
+                                  document['name'],
+                                  style: TextStyle(fontSize: 20.0),
+                                ),
+                                Spacer(),
+                                Text(document['quantity']),
+                                Text(document['unit']),
+                              ],
                             ),
-//                            leading: GestureDetector(
-//                              onTap: () => _showDialog(),
-//                              child: Text(_currentQuantity.toString()),
-//                            ),
+                            leading: IconButton(
+                              icon: Icon(FontAwesomeIcons.plus),
+                              onPressed: () => _showDialog(document),
+                            ),
                             trailing: IconButton(
                               icon: Icon(
                                 FontAwesomeIcons.times,
@@ -684,27 +680,6 @@ class _InnerListState extends State<InnerList> {
                       );
                     }).toList(),
                   ),
-//                  _barcodeData != null
-//                      ? Padding(
-//                          padding: const EdgeInsets.all(8.0),
-//                          child: Card(
-//                            elevation: 10.0,
-//                            child: ListTile(
-//                              title: Text(
-//                                _barcodeData != null ? _barcodeData : "",
-//                                style: TextStyle(
-//                                  fontSize: 19.0,
-//                                ),
-//                              ),
-//                              trailing: IconButton(
-//                                icon: Icon(FontAwesomeIcons.times),
-//                                onPressed: () {},
-//                                color: Colors.grey,
-//                              ),
-//                            ),
-//                          ),
-//                        )
-//                      : SizedBox(),
                 ],
               );
           }
@@ -884,10 +859,19 @@ class _CheckoutState extends State<Checkout> {
                   materialTapTargetSize: MaterialTapTargetSize.padded,
                   onChanged: (bool x) {
                     setState(() {
-                      this._promo1 = x;
-                      this._cartTotal = 500;
-                      if (x) {
-                        this._cartTotal = 450;
+                      if (_promo2) {
+                        _promo2 = !_promo2;
+                        this._promo1 = x;
+                        this._cartTotal = 500;
+                        if (x) {
+                          this._cartTotal = 450;
+                        }
+                      } else {
+                        this._promo1 = x;
+                        this._cartTotal = 500;
+                        if (x) {
+                          this._cartTotal = 450;
+                        }
                       }
                     });
                   }),
@@ -909,10 +893,19 @@ class _CheckoutState extends State<Checkout> {
                   materialTapTargetSize: MaterialTapTargetSize.padded,
                   onChanged: (bool x) {
                     setState(() {
-                      this._promo2 = x;
-                      this._cartTotal = 500;
-                      if (x) {
-                        this._cartTotal = 400;
+                      if (_promo1) {
+                        _promo1 = !_promo1;
+                        this._promo2 = x;
+                        this._cartTotal = 500;
+                        if (x) {
+                          this._cartTotal = 400;
+                        }
+                      } else {
+                        this._promo2 = x;
+                        this._cartTotal = 500;
+                        if (x) {
+                          this._cartTotal = 400;
+                        }
                       }
                     });
                   }),
