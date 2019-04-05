@@ -297,6 +297,13 @@ class _MethodsState extends State<Methods> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+            icon: Icon(
+              FontAwesomeIcons.arrowLeft,
+              size: 20.0,
+              color: Colors.white,
+            ),
+            onPressed: () => Navigator.of(context).pop()),
         backgroundColor: Colors.red,
         title: Padding(
           padding: const EdgeInsets.all(5.0),
