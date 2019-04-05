@@ -512,7 +512,11 @@ class _MethodsState extends State<Methods> {
                                                                           await reference
                                                                               .add({
                                                                             "name":
-                                                                                document['name']
+                                                                                document['name'],
+                                                                            "quantity":
+                                                                                document['quantity'],
+                                                                            "unit":
+                                                                                document['unit'],
                                                                           });
                                                                         });
                                                                         Flushbar(
