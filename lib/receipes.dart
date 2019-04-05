@@ -148,6 +148,7 @@ class _ReceipesState extends State<Receipes> {
               return Builder(
                 builder: (BuildContext context) {
                   return Stack(
+                    fit: StackFit.expand,
                     children: <Widget>[
                       GestureDetector(
                         onTap: () {

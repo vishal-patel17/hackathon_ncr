@@ -808,6 +808,7 @@ class _CheckoutState extends State<Checkout> {
   bool _promo2 = false;
   bool _nfc = false;
   bool _card = false;
+  bool _offline = false;
 
   int _cartTotal = 500;
 
@@ -1058,7 +1059,10 @@ class _CheckoutState extends State<Checkout> {
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(30.0)),
                         color: Colors.blue,
-                        child: Text('Scan Card'),
+                        child: Text(
+                          'Scan Card',
+                          style: TextStyle(color: Colors.white),
+                        ),
                         onPressed: () => _scanCard(),
                       ),
                     ),
@@ -1077,15 +1081,22 @@ class _CheckoutState extends State<Checkout> {
                                 ListTile(
                                   title: Text(_cardDate),
                                   leading: Icon(Icons.date_range),
-                                  trailing: Container(
-                                    height: 40,
-                                    width: 80,
-                                    child: TextField(
-                                      maxLines: 1,
-                                      keyboardType: TextInputType.number,
-                                      decoration: InputDecoration(
-                                        hintText: 'CVV',
-                                        border: OutlineInputBorder(),
+                                  trailing: Padding(
+                                    padding: const EdgeInsets.only(
+                                        left: 8.0,
+                                        right: 8.0,
+                                        top: 8.0,
+                                        bottom: 20.0),
+                                    child: Container(
+                                      height: 60,
+                                      width: 80,
+                                      child: TextField(
+                                        maxLines: 1,
+                                        keyboardType: TextInputType.number,
+                                        decoration: InputDecoration(
+                                          hintText: 'CVV',
+                                          border: OutlineInputBorder(),
+                                        ),
                                       ),
                                     ),
                                   ),
@@ -1094,6 +1105,64 @@ class _CheckoutState extends State<Checkout> {
                             ),
                           )
                         : SizedBox(),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          Card(
+            elevation: 10.0,
+            child: ExpansionTile(
+              leading: CircularCheckBox(
+                  activeColor: Colors.green,
+                  value: _offline,
+                  materialTapTargetSize: MaterialTapTargetSize.padded,
+                  onChanged: (bool x) {
+                    setState(() {
+                      this._offline = x;
+                    });
+                  }),
+              title: Text("Offline Payment"),
+              children: <Widget>[
+                Column(
+                  children: <Widget>[
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: RaisedButton(
+                            padding: EdgeInsets.all(8.0),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30.0)),
+                            color: Colors.blue,
+                            child: Text(
+                              'Add money to wallet',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            onPressed: () {},
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(
+                              left: 8.0, right: 8.0, top: 8.0, bottom: 20.0),
+                          child: Container(
+                            height: 60,
+                            width: 150,
+                            child: TextField(
+                              maxLines: 1,
+                              keyboardType: TextInputType.number,
+                              decoration: InputDecoration(
+                                hintText: 'AMOUNT',
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(30.0),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ],
                 ),
               ],
