@@ -138,15 +138,12 @@ class _HomeState extends State<Home> {
     if (f.photos != null) {
       final photos = f.photos;
       list.add(
-        Align(
-          alignment: Alignment.topLeft,
-          child: CachedNetworkImage(
-            width: 400.0,
-            height: 100.0,
-            imageUrl: buildPhotoURL(photos[0].photoReference),
-            placeholder: (context, url) => SizedBox(),
-            errorWidget: (context, url, error) => SizedBox(),
-          ),
+        CachedNetworkImage(
+          width: 400.0,
+          height: 200.0,
+          imageUrl: buildPhotoURL(photos[0].photoReference),
+          placeholder: (context, url) => SizedBox(),
+          errorWidget: (context, url, error) => SizedBox(),
         ),
       );
     } else {
@@ -165,9 +162,15 @@ class _HomeState extends State<Home> {
     list.add(
       Padding(
         padding: EdgeInsets.only(top: 4.0, left: 8.0, right: 8.0, bottom: 4.0),
-        child: Text(
-          f.name,
-          style: Theme.of(context).textTheme.subtitle,
+        child: Card(
+          elevation: 10.0,
+          child: ListTile(
+            leading: Icon(FontAwesomeIcons.building),
+            title: Text(
+              f.name,
+              style: Theme.of(context).textTheme.subhead,
+            ),
+          ),
         ),
       ),
     );
@@ -184,22 +187,33 @@ class _HomeState extends State<Home> {
         Padding(
           padding:
               EdgeInsets.only(top: 0.0, left: 8.0, right: 8.0, bottom: 4.0),
-          child: Text(
-            text,
-            style: Theme.of(context).textTheme.caption,
+          child: Card(
+            elevation: 10.0,
+            child: ListTile(
+              leading: Icon(FontAwesomeIcons.clock),
+              title: Text(
+                text,
+                style: Theme.of(context).textTheme.caption,
+              ),
+            ),
           ),
         ),
       );
     }
-
     if (f.rating != null) {
       list.add(
         Padding(
           padding:
               EdgeInsets.only(top: 0.0, left: 8.0, right: 8.0, bottom: 4.0),
-          child: Text(
-            "Rating: ${f.rating}",
-            style: Theme.of(context).textTheme.caption,
+          child: Card(
+            elevation: 10.0,
+            child: ListTile(
+              leading: Icon(FontAwesomeIcons.star),
+              title: Text(
+                f.rating.toString(),
+                style: Theme.of(context).textTheme.caption,
+              ),
+            ),
           ),
         ),
       );
@@ -212,9 +226,22 @@ class _HomeState extends State<Home> {
           if (snapshot.hasData) {
             if (snapshot.data != null) {
               var placeDetail = snapshot.data.result;
-              return placeDetail == null
-                  ? SizedBox()
-                  : Text("Addr: ${placeDetail.formattedAddress}");
+              return Padding(
+                padding: EdgeInsets.only(
+                    top: 0.0, left: 8.0, right: 8.0, bottom: 4.0),
+                child: placeDetail == null
+                    ? SizedBox()
+                    : Card(
+                        elevation: 10.0,
+                        child: ListTile(
+                          leading: Icon(FontAwesomeIcons.addressBook),
+                          title: Text(
+                            placeDetail.formattedAddress,
+                            style: Theme.of(context).textTheme.caption,
+                          ),
+                        ),
+                      ),
+              );
             } else
               return SizedBox();
           } else {

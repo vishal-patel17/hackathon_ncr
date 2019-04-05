@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:local_auth/local_auth.dart';
-import 'package:flutter_auth_buttons/flutter_auth_buttons.dart';
 import 'package:flutter_signin_button/flutter_signin_button.dart';
 
 import 'package:ncr_hachathon/userPage.dart';
@@ -84,11 +83,31 @@ class _MyHomePageState extends State<MyHomePage> {
                 child: ListView(
                   shrinkWrap: true,
                   children: <Widget>[
-                    Center(
-                      child: Text(
-                        'Login using fingerprint',
-                        style: TextStyle(color: Colors.black, fontSize: 22.0),
-                      ),
+                    Column(
+                      mainAxisSize: MainAxisSize.max,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        Center(
+                          child: Text(
+                            'SUPER SHOPPER',
+                            style: TextStyle(
+                              shadows: <Shadow>[],
+                              color: Colors.black,
+                              fontSize: 30.0,
+                              fontStyle: FontStyle.italic,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 70.0),
+                        Center(
+                          child: Text(
+                            'Login using fingerprint',
+                            style:
+                                TextStyle(color: Colors.black, fontSize: 22.0),
+                          ),
+                        ),
+                      ],
                     ),
                     SizedBox(height: 28.0),
                     GestureDetector(
