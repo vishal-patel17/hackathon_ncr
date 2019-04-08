@@ -530,8 +530,16 @@ class _ShoppingListState extends State<ShoppingList> {
                                                                 children: <
                                                                     Widget>[
                                                                   Align(
-                                                                    child: Text(
-                                                                      "${snapshot.data.documents.length} items",
+                                                                    child:
+                                                                        Padding(
+                                                                      padding: const EdgeInsets
+                                                                              .only(
+                                                                          left:
+                                                                              8.0),
+                                                                      child:
+                                                                          Text(
+                                                                        "${snapshot.data.documents.length} items",
+                                                                      ),
                                                                     ),
                                                                     alignment:
                                                                         Alignment
@@ -556,7 +564,7 @@ class _ShoppingListState extends State<ShoppingList> {
                                                                           child:
                                                                               Row(
                                                                             mainAxisAlignment:
-                                                                                MainAxisAlignment.spaceBetween,
+                                                                                MainAxisAlignment.start,
                                                                             children: <Widget>[
                                                                               Text(
                                                                                 "- ${ds['name']}",
@@ -564,7 +572,9 @@ class _ShoppingListState extends State<ShoppingList> {
                                                                                   fontSize: 15.0,
                                                                                 ),
                                                                               ),
-                                                                              Text("   ${ds['unit']}"),
+                                                                              SizedBox(width: 8.0),
+                                                                              Text("${ds['quantity']}${ds['unit']}"),
+                                                                              Spacer(),
                                                                               GestureDetector(
                                                                                 onTap: () {
                                                                                   setState(() {
