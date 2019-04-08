@@ -114,7 +114,7 @@ class _ShoppingListState extends State<ShoppingList> {
                   Divider(),
                   ListTile(
                     leading: Icon(FontAwesomeIcons.bookOpen),
-                    title: Text('Receipe Book'),
+                    title: Text('Recipe Book'),
                   ),
                   Divider(),
                   ListTile(
@@ -175,6 +175,7 @@ class _ShoppingListState extends State<ShoppingList> {
               ),
             ),
           ),
+          SizedBox(height: 20.0),
           Padding(
             padding: const EdgeInsets.only(left: 18.0),
             child: Text(

@@ -39,7 +39,7 @@ class _UserHomePageState extends State<UserHomePage> {
           ),
           BottomNavigationBarItem(
             icon: Icon(FontAwesomeIcons.utensils),
-            title: Text('Receipes'),
+            title: Text('Recipes'),
           ),
           BottomNavigationBarItem(
             icon: Icon(FontAwesomeIcons.shoppingCart),
