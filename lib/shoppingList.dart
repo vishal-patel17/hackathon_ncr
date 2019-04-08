@@ -9,6 +9,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:circular_check_box/circular_check_box.dart';
 import 'package:flutter_xlider/flutter_xlider.dart';
+import 'package:ncr_hachathon/listSearch.dart';
 import 'package:ncr_hachathon/main.dart';
 import 'package:unicorndial/unicorndial.dart';
 import 'package:flushbar/flushbar.dart';
@@ -40,13 +41,15 @@ class _ShoppingListState extends State<ShoppingList> {
         elevation: 0.0,
         iconTheme: IconThemeData(color: Colors.black),
         actions: <Widget>[
-          Padding(
-            padding: const EdgeInsets.all(12.0),
-            child: Icon(
-              FontAwesomeIcons.search,
-              size: 18.0,
-            ),
-          )
+          IconButton(
+            icon: Icon(FontAwesomeIcons.search, size: 18.0),
+            onPressed: () {
+              showSearch(
+                context: context,
+                delegate: ListSearch(),
+              );
+            },
+          ),
         ],
       ),
       drawer: Drawer(
@@ -109,7 +112,7 @@ class _ShoppingListState extends State<ShoppingList> {
                   Divider(),
                   ListTile(
                     leading: Icon(FontAwesomeIcons.smile),
-                    title: Text('Expeciences'),
+                    title: Text('Feedback'),
                   ),
                   Divider(),
                   ListTile(
@@ -119,7 +122,7 @@ class _ShoppingListState extends State<ShoppingList> {
                   Divider(),
                   ListTile(
                     leading: Icon(FontAwesomeIcons.receipt),
-                    title: Text('Receipts'),
+                    title: Text('Order History'),
                   ),
                   Divider(),
                 ],
@@ -624,7 +627,8 @@ class _ShoppingListState extends State<ShoppingList> {
                               );
                             }).toList(),
                           )
-                        : Center(
+                        : Align(
+                            alignment: Alignment.center,
                             child: Text('No List found!'),
                           );
                 }
