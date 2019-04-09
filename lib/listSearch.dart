@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
+import 'package:ncr_hachathon/receipes.dart';
+
 class ListSearch extends SearchDelegate<List> {
   final _list = [
     "Cake",
@@ -95,6 +97,8 @@ class ListSearch extends SearchDelegate<List> {
                           color: Colors.grey,
                         ),
                         title: Text(results[index]),
+                        onTap: () => Navigator.push(context,
+                            MaterialPageRoute(builder: (context) => Methods())),
                       ),
                 ),
               ],
@@ -107,6 +111,8 @@ class ListSearch extends SearchDelegate<List> {
                       color: Colors.grey,
                     ),
                     title: Text(results[index]),
+                    onTap: () => Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => Methods())),
                   ),
             ),
     );
