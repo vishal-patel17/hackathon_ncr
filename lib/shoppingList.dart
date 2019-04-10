@@ -1190,7 +1190,6 @@ class _CheckoutState extends State<Checkout> {
   bool _offline = false;
 
   int _cartTotal = 500;
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -1216,7 +1215,8 @@ class _CheckoutState extends State<Checkout> {
                 'Complete Payment',
                 style: TextStyle(color: Colors.white, fontSize: 15.0),
               ),
-              onPressed: () {},
+              onPressed: () => Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => ShowReceipt())),
             ),
             RaisedButton(
               padding: EdgeInsets.all(18.0),
