@@ -6,6 +6,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:numberpicker/numberpicker.dart';
 import 'package:smooth_star_rating/smooth_star_rating.dart';
+import 'package:percent_indicator/percent_indicator.dart';
 
 List<Image> _ingriImages = [
   Image.asset(
@@ -455,7 +456,111 @@ class _MethodsState extends State<Methods> {
                     ),
                     backgroundColor: Colors.white30,
 //                        elevation: 0.0,
-                    leading: SizedBox(),
+                    leading: IconButton(
+                        icon: Icon(
+                          FontAwesomeIcons.infoCircle,
+                          size: 20.0,
+                          color: Colors.black,
+                        ),
+                        onPressed: () {
+                          showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  elevation: 10.0,
+                                  title: Text('Calories Info'),
+                                  contentPadding: EdgeInsets.all(8.0),
+                                  content: Row(
+                                    mainAxisSize: MainAxisSize.max,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceAround,
+                                    children: <Widget>[
+                                      CircularPercentIndicator(
+                                        radius: 80.0,
+                                        lineWidth: 13.0,
+                                        animation: true,
+                                        percent: 0.7,
+                                        center: new Text(
+                                          "285",
+                                          style: new TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 20.0),
+                                        ),
+                                        footer: new Text(
+                                          "Calories",
+                                          style: new TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 17.0),
+                                        ),
+                                        circularStrokeCap:
+                                            CircularStrokeCap.round,
+                                        progressColor: Colors.red,
+                                      ),
+                                      CircularPercentIndicator(
+                                        radius: 80.0,
+                                        lineWidth: 13.0,
+                                        animation: true,
+                                        percent: 0.3,
+                                        center: new Text(
+                                          "12g",
+                                          style: new TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 20.0),
+                                        ),
+                                        footer: new Text(
+                                          "Protein",
+                                          style: new TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 17.0),
+                                        ),
+                                        circularStrokeCap:
+                                            CircularStrokeCap.round,
+                                        progressColor: Colors.green,
+                                      ),
+                                      CircularPercentIndicator(
+                                        radius: 80.0,
+                                        lineWidth: 13.0,
+                                        animation: true,
+                                        percent: 0.5,
+                                        center: new Text(
+                                          "36g",
+                                          style: new TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 20.0),
+                                        ),
+                                        footer: new Text(
+                                          "Carbs",
+                                          style: new TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 17.0),
+                                        ),
+                                        circularStrokeCap:
+                                            CircularStrokeCap.round,
+                                        progressColor: Colors.yellow,
+                                      ),
+                                    ],
+                                  ),
+                                  actions: <Widget>[
+                                    RaisedButton(
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(30.0),
+                                      ),
+                                      elevation: 10.0,
+                                      color: Colors.red,
+                                      child: Text(
+                                        'Dismiss',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      onPressed: () =>
+                                          Navigator.of(context).pop(),
+                                    ),
+                                  ],
+                                );
+                              });
+                        }),
                     bottom: TabBar(
                       labelColor: Colors.black,
                       indicatorColor: Colors.white,
