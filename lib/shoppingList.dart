@@ -125,11 +125,13 @@ class _ShoppingListState extends State<ShoppingList> {
                   ),
                   Divider(),
                   ListTile(
-                    leading: Icon(FontAwesomeIcons.receipt),
-                    title: Text('Order History'),
-                    onTap: () => Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => Receipt())),
-                  ),
+                      leading: Icon(FontAwesomeIcons.receipt),
+                      title: Text('Order History'),
+                      onTap: () {
+                        Navigator.of(context).pop();
+                        Navigator.push(context,
+                            MaterialPageRoute(builder: (context) => Receipt()));
+                      }),
                   Divider(),
                 ],
               ),
