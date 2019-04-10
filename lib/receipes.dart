@@ -4,6 +4,7 @@ import 'package:flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:numberpicker/numberpicker.dart';
 import 'package:smooth_star_rating/smooth_star_rating.dart';
 
 List<Image> _ingriImages = [
@@ -293,6 +294,34 @@ class Methods extends StatefulWidget {
 
 class _MethodsState extends State<Methods> {
   var rating = 4.0;
+  int _numberOfPeople = 1;
+
+  Future<void> _showDialog() {
+    return showDialog<int>(
+        context: context,
+        builder: (BuildContext context) {
+          return NumberPickerDialog.integer(
+            initialIntegerValue: 1,
+            minValue: 1,
+            maxValue: 10,
+            title: Text("Pick quantity"),
+          );
+        }).then((value) {
+      if (value != null) {
+        setState(() {
+          _numberOfPeople = value;
+//          _currentQuantity = value.toString();
+//          Firestore.instance
+//              .collection(widget.listName)
+//              .document(document.documentID)
+//              .updateData({
+//            'quantity': _currentQuantity,
+//          });
+        });
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -399,6 +428,30 @@ class _MethodsState extends State<Methods> {
                         ),
                       ),
                       subtitle: Text('Italian and cheese pizza'),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: <Widget>[
+                          GestureDetector(
+                            onTap: _showDialog,
+                            child: Text(
+                              'For: ',
+                              style: TextStyle(
+                                color: Colors.black,
+                              ),
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: _showDialog,
+                            child: Text(
+                              _numberOfPeople.toString(),
+                              style: TextStyle(
+                                color: Colors.black,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                     backgroundColor: Colors.white30,
 //                        elevation: 0.0,

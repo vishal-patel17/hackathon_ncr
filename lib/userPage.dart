@@ -426,9 +426,12 @@ class _HomeState extends State<Home> {
                             color: Colors.black,
                           ),
                           onPressed: () async {
-                            // ignore: unused_local_variable
-                            Prediction p = await PlacesAutocomplete.show(
+                            Prediction p;
+                            p = await PlacesAutocomplete.show(
                                 context: context,
+                                hint: 'Search Metro Stores',
+                                radius: 9000,
+                                types: ['grocery', 'supermarket', 'store'],
                                 apiKey: kGoogleApiKey,
                                 mode: Mode.overlay, // Mode.fullscreen
                                 language: "en",
@@ -437,6 +440,9 @@ class _HomeState extends State<Home> {
                                 components: [
                                   new Component(Component.country, "in")
                                 ]);
+                            PlacesAutocompleteResult(
+                              onTap: (pd) {},
+                            );
                           },
                         ),
                       ],
