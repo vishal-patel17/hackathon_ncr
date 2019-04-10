@@ -462,6 +462,28 @@ class MyCart extends StatefulWidget {
 
 class _MyCartState extends State<MyCart> {
   String _currentQuantity;
+  bool _isCartEmpty = true;
+  int _cartTotal = 0;
+  @override
+  void initState() {
+    super.initState();
+    _getCartTotal();
+  }
+
+  Future<void> _getCartTotal() async {
+    await Firestore.instance.collection('cart').getDocuments().then((snapshot) {
+      setState(() {
+        this._cartTotal = snapshot.documents.length;
+        if (this._cartTotal == 0) {
+          _isCartEmpty = true;
+        }
+        if (this._cartTotal > 0) {
+          _isCartEmpty = false;
+        }
+      });
+    });
+  }
+
   Future<void> _showDialog(DocumentSnapshot document) {
     return showDialog<int>(
         context: context,
@@ -491,19 +513,21 @@ class _MyCartState extends State<MyCart> {
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.green,
-        child: Text('Pay'),
-        onPressed: () {
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => Checkout(),
-              ));
-        },
-      ),
+      floatingActionButton: _isCartEmpty
+          ? null
+          : FloatingActionButton(
+              backgroundColor: Colors.green,
+              child: Text('Pay'),
+              onPressed: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => Checkout(),
+                    ));
+              },
+            ),
       appBar: AppBar(
-        title: Text('My Cart'),
+        title: Text("My Cart"),
         backgroundColor: Colors.red,
       ),
       body: StreamBuilder<QuerySnapshot>(
@@ -529,76 +553,103 @@ class _MyCartState extends State<MyCart> {
               return snapshot.data.documents.length > 0
                   ? Padding(
                       padding: const EdgeInsets.all(8.0),
-                      child: ListView(
+                      child: Column(
                         children: <Widget>[
-                          Column(
-                            children: snapshot.data.documents
-                                .map((DocumentSnapshot document) {
-                              return Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Card(
-                                  elevation: 10.0,
-                                  child: ListTile(
-                                    title: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.start,
-                                      children: <Widget>[
-                                        Text(
-                                          document['name'],
-                                          style: TextStyle(fontSize: 20.0),
-                                        ),
-                                        Spacer(),
-                                        Text(document['quantity']),
-                                        Text(document['unit']),
-                                      ],
-                                    ),
-                                    leading: IconButton(
-                                      icon: Icon(FontAwesomeIcons.plus),
-                                      onPressed: () => _showDialog(document),
-                                    ),
-                                    trailing: IconButton(
-                                      icon: Icon(
-                                        FontAwesomeIcons.times,
-                                        color: Colors.grey,
-                                      ),
-                                      onPressed: () {
-                                        showDialog(
-                                            context: context,
-                                            builder: (BuildContext context) {
-                                              return AlertDialog(
-                                                title: Text("Delete " +
-                                                    document['name'] +
-                                                    " ?"),
-                                                actions: <Widget>[
-                                                  FlatButton(
-                                                    child: Icon(Icons.done),
-                                                    onPressed: () {
-                                                      Firestore.instance
-                                                          .collection('cart')
-                                                          .document(document
-                                                              .documentID)
-                                                          .delete();
-
-                                                      Navigator.pop(context);
-                                                      //refreshPage();
-                                                    },
-                                                  ),
-                                                  FlatButton(
-                                                    child: Icon(Icons.cancel),
-                                                    onPressed: () {
-                                                      Navigator.pop(context);
-                                                    },
-                                                  ),
-                                                ],
-                                              );
-                                            });
-                                      },
-                                    ),
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              mainAxisSize: MainAxisSize.max,
+                              children: <Widget>[
+                                Text(
+                                  "$_cartTotal item(s)",
+                                  style: TextStyle(
+                                    fontSize: 16.0,
                                   ),
                                 ),
-                              );
-                            }).toList(),
+                                Text(
+                                  'Total amount: 500',
+                                  style: TextStyle(
+                                    fontSize: 16.0,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Divider(),
+                          SizedBox(height: 8.0),
+                          Expanded(
+                            child: ListView(
+                              shrinkWrap: true,
+                              children: snapshot.data.documents
+                                  .map((DocumentSnapshot document) {
+                                return Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Card(
+                                    elevation: 10.0,
+                                    child: ListTile(
+                                      title: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        children: <Widget>[
+                                          Text(
+                                            document['name'],
+                                            style: TextStyle(fontSize: 20.0),
+                                          ),
+                                          Spacer(),
+                                          Text(document['quantity']),
+                                          Text(document['unit']),
+                                        ],
+                                      ),
+                                      leading: IconButton(
+                                        icon: Icon(FontAwesomeIcons.plus),
+                                        onPressed: () => _showDialog(document),
+                                      ),
+                                      trailing: IconButton(
+                                        icon: Icon(
+                                          FontAwesomeIcons.times,
+                                          color: Colors.grey,
+                                        ),
+                                        onPressed: () {
+                                          showDialog(
+                                              context: context,
+                                              builder: (BuildContext context) {
+                                                return AlertDialog(
+                                                  title: Text("Delete " +
+                                                      document['name'] +
+                                                      " ?"),
+                                                  actions: <Widget>[
+                                                    FlatButton(
+                                                      child: Icon(Icons.done),
+                                                      onPressed: () {
+                                                        Firestore.instance
+                                                            .collection('cart')
+                                                            .document(document
+                                                                .documentID)
+                                                            .delete();
+                                                        _getCartTotal();
+
+                                                        Navigator.pop(context);
+                                                        //refreshPage();
+                                                      },
+                                                    ),
+                                                    FlatButton(
+                                                      child: Icon(Icons.cancel),
+                                                      onPressed: () {
+                                                        Navigator.pop(context);
+                                                      },
+                                                    ),
+                                                  ],
+                                                );
+                                              });
+                                        },
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              }).toList(),
+                            ),
                           ),
                         ],
                       ),
