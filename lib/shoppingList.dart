@@ -11,6 +11,8 @@ import 'package:circular_check_box/circular_check_box.dart';
 import 'package:flutter_xlider/flutter_xlider.dart';
 import 'package:ncr_hachathon/listSearch.dart';
 import 'package:ncr_hachathon/main.dart';
+import 'package:ncr_hachathon/receipes.dart';
+import 'package:ncr_hachathon/receipt.dart';
 import 'package:unicorndial/unicorndial.dart';
 import 'package:flushbar/flushbar.dart';
 import 'package:firebase_ml_vision/firebase_ml_vision.dart';
@@ -118,11 +120,15 @@ class _ShoppingListState extends State<ShoppingList> {
                   ListTile(
                     leading: Icon(FontAwesomeIcons.bookOpen),
                     title: Text('Recipe Book'),
+                    onTap: () => Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => Receipes())),
                   ),
                   Divider(),
                   ListTile(
                     leading: Icon(FontAwesomeIcons.receipt),
                     title: Text('Order History'),
+                    onTap: () => Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => Receipt())),
                   ),
                   Divider(),
                 ],
@@ -1365,6 +1371,12 @@ class _CheckoutState extends State<Checkout> {
                   materialTapTargetSize: MaterialTapTargetSize.padded,
                   onChanged: (bool x) {
                     setState(() {
+                      if (this._card) {
+                        this._card = !this._card;
+                      }
+                      if (this._offline) {
+                        this._offline = !this._offline;
+                      }
                       this._nfc = x;
                     });
                   }),
@@ -1418,6 +1430,12 @@ class _CheckoutState extends State<Checkout> {
                   materialTapTargetSize: MaterialTapTargetSize.padded,
                   onChanged: (bool x) {
                     setState(() {
+                      if (this._nfc) {
+                        this._nfc = !this._nfc;
+                      }
+                      if (this._offline) {
+                        this._offline = !this._offline;
+                      }
                       this._card = x;
                     });
                   }),
@@ -1492,6 +1510,12 @@ class _CheckoutState extends State<Checkout> {
                   materialTapTargetSize: MaterialTapTargetSize.padded,
                   onChanged: (bool x) {
                     setState(() {
+                      if (this._nfc) {
+                        this._nfc = !this._nfc;
+                      }
+                      if (this._card) {
+                        this._card = !this._card;
+                      }
                       this._offline = x;
                     });
                   }),
