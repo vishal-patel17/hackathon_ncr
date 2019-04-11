@@ -9,6 +9,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:circular_check_box/circular_check_box.dart';
 import 'package:flutter_xlider/flutter_xlider.dart';
+import 'package:ncr_hachathon/dialogFlow.dart';
 import 'package:ncr_hachathon/listSearch.dart';
 import 'package:ncr_hachathon/main.dart';
 import 'package:ncr_hachathon/receipes.dart';
@@ -115,14 +116,22 @@ class _ShoppingListState extends State<ShoppingList> {
                   Divider(),
                   ListTile(
                     leading: Icon(FontAwesomeIcons.smile),
-                    title: Text('Feedback'),
+                    title: Text('Help & Feedback'),
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (context) => Chat()));
+                    },
                   ),
                   Divider(),
                   ListTile(
                     leading: Icon(FontAwesomeIcons.bookOpen),
                     title: Text('Recipe Book'),
-                    onTap: () => Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => Receipes())),
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (context) => Receipes()));
+                    },
                   ),
                   Divider(),
                   ListTile(
