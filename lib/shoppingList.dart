@@ -19,6 +19,7 @@ import 'package:firebase_ml_vision/firebase_ml_vision.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:numberpicker/numberpicker.dart';
+import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 
 class ShoppingList extends StatefulWidget {
   @override
@@ -818,6 +819,7 @@ class _InnerListState extends State<InnerList> {
   String _itemName;
   String _barcodeData;
   String _currentQuantity = 1.toString();
+  String _newValue;
 
   Future<void> _showDialog(DocumentSnapshot document) {
     return showDialog<int>(
@@ -920,53 +922,86 @@ class _InnerListState extends State<InnerList> {
         mini: true,
         child: Icon(FontAwesomeIcons.barcode),
         onPressed: () async {
-          final File imageFile =
-              await ImagePicker.pickImage(source: ImageSource.gallery);
-          final FirebaseVisionImage visionImage =
-              FirebaseVisionImage.fromFile(imageFile);
-          final BarcodeDetector barcodeDetector =
-              FirebaseVision.instance.barcodeDetector();
-          final List<Barcode> barcodes =
-              await barcodeDetector.detectInImage(visionImage);
-          for (Barcode barcode in barcodes) {
-            final String rawValue = barcode.rawValue;
-            if (rawValue == '671860013624') {
-              setState(() {
-                this._barcodeData = 'Ghee';
-                Firestore.instance
-                    .runTransaction((Transaction transaction) async {
-                  CollectionReference reference =
-                      Firestore.instance.collection(widget.listName);
-                  await reference.add({
-                    "name": _barcodeData,
-                    "quantity": _currentQuantity,
-                    "unit": 'l',
-                    "price": '800',
-                  });
+          String barcodeScanRes =
+              await FlutterBarcodeScanner.scanBarcode('red', 'Cancel');
+          if (barcodeScanRes == '8901764012273') {
+            setState(() {
+              this._barcodeData = 'Coke';
+              Firestore.instance
+                  .runTransaction((Transaction transaction) async {
+                CollectionReference reference =
+                    Firestore.instance.collection(widget.listName);
+                await reference.add({
+                  "name": _barcodeData,
+                  "quantity": _currentQuantity,
+                  "unit": 'l',
+                  "price": '50',
                 });
               });
-            } else if (rawValue == ']C10109312345678907') {
-              setState(() {
-                this._barcodeData = 'Coffee';
-                Firestore.instance
-                    .runTransaction((Transaction transaction) async {
-                  CollectionReference reference =
-                      Firestore.instance.collection(widget.listName);
-                  await reference.add({
-                    "name": _barcodeData,
-                    "quantity": _currentQuantity,
-                    "unit": 'gm',
-                    "price": '200',
-                  });
+            });
+          } else {
+            setState(() {
+              this._barcodeData = barcodeScanRes;
+              Firestore.instance
+                  .runTransaction((Transaction transaction) async {
+                CollectionReference reference =
+                    Firestore.instance.collection(widget.listName);
+                await reference.add({
+                  "name": _barcodeData,
+                  "quantity": _currentQuantity,
+                  "unit": 'l',
+                  "price": '50',
                 });
               });
-            } else {
-              setState(() {
-                this._barcodeData = rawValue;
-                print(_barcodeData);
-              });
-            }
+            });
           }
+//          final File imageFile =
+//              await ImagePicker.pickImage(source: ImageSource.gallery);
+//          final FirebaseVisionImage visionImage =
+//              FirebaseVisionImage.fromFile(imageFile);
+//          final BarcodeDetector barcodeDetector =
+//              FirebaseVision.instance.barcodeDetector();
+//          final List<Barcode> barcodes =
+//              await barcodeDetector.detectInImage(visionImage);
+//          for (Barcode barcode in barcodes) {
+//            final String rawValue = barcode.rawValue;
+//            if (rawValue == '671860013624') {
+//              setState(() {
+//                this._barcodeData = 'Ghee';
+//                Firestore.instance
+//                    .runTransaction((Transaction transaction) async {
+//                  CollectionReference reference =
+//                      Firestore.instance.collection(widget.listName);
+//                  await reference.add({
+//                    "name": _barcodeData,
+//                    "quantity": _currentQuantity,
+//                    "unit": 'l',
+//                    "price": '800',
+//                  });
+//                });
+//              });
+//            } else if (rawValue == ']C10109312345678907') {
+//              setState(() {
+//                this._barcodeData = 'Coffee';
+//                Firestore.instance
+//                    .runTransaction((Transaction transaction) async {
+//                  CollectionReference reference =
+//                      Firestore.instance.collection(widget.listName);
+//                  await reference.add({
+//                    "name": _barcodeData,
+//                    "quantity": _currentQuantity,
+//                    "unit": 'gm',
+//                    "price": '200',
+//                  });
+//                });
+//              });
+//            } else {
+//              setState(() {
+//                this._barcodeData = rawValue;
+//                print(_barcodeData);
+//              });
+//            }
+//          }
         },
       ),
     ));
@@ -1084,6 +1119,72 @@ class _InnerListState extends State<InnerList> {
                                     });
                               },
                             ),
+                            onTap: () {
+                              showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return AlertDialog(
+                                      title: Text("Update ${document['name']}"),
+                                      content: TextField(
+                                          decoration: InputDecoration(
+                                            labelText: 'Enter New value',
+                                          ),
+                                          autofocus: true,
+                                          textCapitalization:
+                                              TextCapitalization.sentences,
+                                          keyboardType: TextInputType.text,
+                                          onChanged: (String value) {
+                                            setState(() {
+                                              this._newValue = value;
+                                            });
+                                          }),
+                                      actions: <Widget>[
+                                        RaisedButton(
+                                          color: Colors.red,
+                                          elevation: 10.0,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(30.0),
+                                          ),
+                                          child: Text(
+                                            'Update',
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                          onPressed: () {
+                                            Firestore.instance.runTransaction(
+                                                (transaction) async {
+                                              await transaction.update(
+                                                  document.reference,
+                                                  <String, dynamic>{
+                                                    'name': this._newValue
+                                                  });
+                                            });
+                                            Navigator.of(context).pop();
+                                          },
+                                        ),
+                                        RaisedButton(
+                                          color: Colors.red,
+                                          elevation: 10.0,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(30.0),
+                                          ),
+                                          child: Text(
+                                            'Dismiss',
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                          onPressed: () {
+                                            Navigator.of(context).pop();
+                                          },
+                                        ),
+                                      ],
+                                    );
+                                  });
+                            },
                           ),
                         ),
                       );
