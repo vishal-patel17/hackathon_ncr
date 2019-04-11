@@ -52,6 +52,7 @@ dev_dependencies:
   smooth_star_rating: ^1.0.2
   percent_indicator: ^1.0.14
   flutter_barcode_scanner: ^0.0.7
+  speech_recognition: ^0.3.0+1
 
 
 # For information on the generic Dart part of this file, see the

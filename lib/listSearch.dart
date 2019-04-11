@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:speech_recognition/speech_recognition.dart';
 
 import 'package:ncr_hachathon/receipes.dart';
 
@@ -28,6 +29,19 @@ class ListSearch extends SearchDelegate<List> {
   @override
   List<Widget> buildActions(BuildContext context) {
     return [
+      IconButton(
+        icon: Icon(
+          FontAwesomeIcons.microphone,
+          size: 20.0,
+          color: Colors.black,
+        ),
+        onPressed: () => Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => RecordVoice(),
+              fullscreenDialog: true,
+            )),
+      ),
       IconButton(
           icon: Icon(
             FontAwesomeIcons.times,
@@ -116,5 +130,44 @@ class ListSearch extends SearchDelegate<List> {
                   ),
             ),
     );
+  }
+}
+
+class RecordVoice extends StatefulWidget {
+  @override
+  _RecordVoiceState createState() => _RecordVoiceState();
+}
+
+class _RecordVoiceState extends State<RecordVoice> {
+  SpeechRecognition _speechRecognition;
+  bool _isAvailable = false;
+  bool _isListening = false;
+  String _resultText = "";
+  @override
+  void initState() {
+    super.initState();
+    _speechRecognizer();
+  }
+
+  void _speechRecognizer() {
+    _speechRecognition = SpeechRecognition();
+    _speechRecognition.setAvailabilityHandler(
+        (bool result) => setState(() => _isAvailable = result));
+    _speechRecognition.setRecognitionStartedHandler(
+        () => setState(() => _isListening = true));
+    _speechRecognition.setRecognitionResultHandler(
+        (String speech) => setState(() => _resultText = speech));
+    _speechRecognition.setRecognitionCompleteHandler(
+        () => setState(() => _isListening = false));
+    _speechRecognition.activate().then((result) {
+      setState(() {
+        _isAvailable = result;
+      });
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container();
   }
 }

@@ -855,7 +855,6 @@ class _InnerListState extends State<InnerList> {
       currentButton: FloatingActionButton(
         heroTag: "add",
         backgroundColor: Colors.redAccent,
-        mini: true,
         child: Icon(
           FontAwesomeIcons.plus,
           color: Colors.white,
@@ -919,7 +918,6 @@ class _InnerListState extends State<InnerList> {
       currentButton: FloatingActionButton(
         heroTag: "barcode",
         backgroundColor: Colors.redAccent,
-        mini: true,
         child: Icon(FontAwesomeIcons.barcode),
         onPressed: () async {
           String barcodeScanRes =
