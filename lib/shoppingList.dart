@@ -154,12 +154,12 @@ class _ShoppingListState extends State<ShoppingList> {
                           color: Colors.blue,
                           shape: BoxShape.rectangle,
                           borderRadius: BorderRadius.circular(30.0)),
-                      width: MediaQuery.of(context).size.width / 2.0,
-                      height: 60.0,
+                      width: MediaQuery.of(context).size.width / 2.7,
+                      height: 45.0,
                       child: Center(
                         child: Text(
                           'LOGOUT',
-                          style: TextStyle(color: Colors.white, fontSize: 20.0),
+                          style: TextStyle(color: Colors.white, fontSize: 16.0),
                         ),
                       ),
                     ),
@@ -853,6 +853,7 @@ class _InnerListState extends State<InnerList> {
       hasLabel: true,
       labelText: "Add a new item",
       currentButton: FloatingActionButton(
+        mini: true,
         heroTag: "add",
         backgroundColor: Colors.redAccent,
         child: Icon(
@@ -916,6 +917,7 @@ class _InnerListState extends State<InnerList> {
       hasLabel: true,
       labelText: "Scan a new item",
       currentButton: FloatingActionButton(
+        mini: true,
         heroTag: "barcode",
         backgroundColor: Colors.redAccent,
         child: Icon(FontAwesomeIcons.barcode),
@@ -938,20 +940,22 @@ class _InnerListState extends State<InnerList> {
               });
             });
           } else {
-            setState(() {
-              this._barcodeData = barcodeScanRes;
-              Firestore.instance
-                  .runTransaction((Transaction transaction) async {
-                CollectionReference reference =
-                    Firestore.instance.collection(widget.listName);
-                await reference.add({
-                  "name": _barcodeData,
-                  "quantity": _currentQuantity,
-                  "unit": 'l',
-                  "price": '50',
-                });
-              });
-            });
+            barcodeScanRes.length > 1
+                ? setState(() {
+                    this._barcodeData = barcodeScanRes;
+                    Firestore.instance
+                        .runTransaction((Transaction transaction) async {
+                      CollectionReference reference =
+                          Firestore.instance.collection(widget.listName);
+                      await reference.add({
+                        "name": _barcodeData,
+                        "quantity": _currentQuantity,
+                        "unit": 'l',
+                        "price": '50',
+                      });
+                    });
+                  })
+                : SizedBox();
           }
 //          final File imageFile =
 //              await ImagePicker.pickImage(source: ImageSource.gallery);
@@ -1013,7 +1017,7 @@ class _InnerListState extends State<InnerList> {
           backgroundColor: Colors.transparent,
           parentButtonBackground: Colors.red,
           orientation: UnicornOrientation.VERTICAL,
-          parentButton: Icon(Icons.add),
+          parentButton: Icon(FontAwesomeIcons.plus),
           childButtons: childButtons),
       body: StreamBuilder<QuerySnapshot>(
         stream: Firestore.instance.collection(widget.listName).snapshots(),
@@ -1735,7 +1739,7 @@ class _QRState extends State<QR> {
               child: Center(
                 child: QrImage(
                   data:
-                      "Tomato-12kg,Potato-5kg,Onion-30kg,pmt id-SuperShopper12345678900987654321",
+                      "Tomato-12kg\n,Potato-5kg\n,Onion-30kg\n,pmt id-SuperShopper12345678900987654321",
                   foregroundColor: Colors.black,
                   size: 300.0,
                 ),

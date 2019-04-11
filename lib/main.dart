@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:flutter_signin_button/flutter_signin_button.dart';
+import 'package:flare_flutter/flare_actor.dart';
 
 import 'package:ncr_hachathon/userPage.dart';
 
@@ -127,16 +128,15 @@ class _MyHomePageState extends State<MyHomePage> {
                         });
                       },
                       child: Container(
-                        child: Center(
-                          child: Icon(
-                            Icons.fingerprint,
-                            size: 60.0,
+                        height: 80.0,
+                        child: FlareActor("assets/Fingerprint.flr",
                             color: Colors.black,
-                          ),
-                        ),
+                            alignment: Alignment.center,
+                            fit: BoxFit.contain,
+                            animation: "process"),
                       ),
                     ),
-                    SizedBox(height: 60.0),
+                    SizedBox(height: 30.0),
                     Center(
                       child: Text(
                         'OR',
@@ -377,7 +377,7 @@ class _EmailLoginState extends State<EmailLogin> {
               width: 300.0,
               height: 50.0,
               child: SignInButtonBuilder(
-                elevation: 8.0,
+                elevation: 10.0,
                 text: 'Sign in with Email',
                 icon: Icons.email,
                 onPressed: () {

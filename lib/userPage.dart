@@ -11,10 +11,10 @@ import 'package:google_maps_webservice/places.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:intl/intl.dart';
 import 'package:ncr_hachathon/home.dart';
-import 'package:ncr_hachathon/main.dart';
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'package:ncr_hachathon/shoppingList.dart';
 import 'package:numberpicker/numberpicker.dart';
+import 'package:flare_flutter/flare_actor.dart';
 
 class Home extends StatefulWidget {
   _HomeState createState() => _HomeState();
@@ -378,9 +378,11 @@ class _HomeState extends State<Home> {
     return _lastMapPosition == null
         ? Scaffold(
             body: Center(
-              child: CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.red),
-              ),
+              child: FlareActor("assets/mapsLoading.flr",
+                  color: Colors.black,
+                  alignment: Alignment.center,
+                  fit: BoxFit.contain,
+                  animation: "Untitled"),
             ),
           )
         : Scaffold(

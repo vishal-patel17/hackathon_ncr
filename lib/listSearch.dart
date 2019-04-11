@@ -4,6 +4,8 @@ import 'package:speech_recognition/speech_recognition.dart';
 
 import 'package:ncr_hachathon/receipes.dart';
 
+String result = "";
+
 class ListSearch extends SearchDelegate<List> {
   final _list = [
     "Cake",
@@ -142,32 +144,113 @@ class _RecordVoiceState extends State<RecordVoice> {
   SpeechRecognition _speechRecognition;
   bool _isAvailable = false;
   bool _isListening = false;
-  String _resultText = "";
+  String resultText = "";
+
   @override
   void initState() {
     super.initState();
-    _speechRecognizer();
+    initSpeechRecognizer();
   }
 
-  void _speechRecognizer() {
+  void initSpeechRecognizer() {
     _speechRecognition = SpeechRecognition();
+
     _speechRecognition.setAvailabilityHandler(
-        (bool result) => setState(() => _isAvailable = result));
+      (bool result) => setState(() => _isAvailable = result),
+    );
+
     _speechRecognition.setRecognitionStartedHandler(
-        () => setState(() => _isListening = true));
+      () => setState(() => _isListening = true),
+    );
+
     _speechRecognition.setRecognitionResultHandler(
-        (String speech) => setState(() => _resultText = speech));
+      (String speech) => setState(() {
+            resultText = speech;
+            result = resultText;
+          }),
+    );
+
     _speechRecognition.setRecognitionCompleteHandler(
-        () => setState(() => _isListening = false));
-    _speechRecognition.activate().then((result) {
-      setState(() {
-        _isAvailable = result;
-      });
-    });
+      () => setState(() => _isListening = false),
+    );
+
+    _speechRecognition.activate().then(
+          (result) => setState(() => _isAvailable = result),
+        );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Container();
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.red,
+      ),
+      body: Container(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                FloatingActionButton(
+                  heroTag: 'cancel',
+                  child: Icon(Icons.cancel),
+                  mini: true,
+                  backgroundColor: Colors.deepOrange,
+                  onPressed: () {
+                    if (_isListening)
+                      _speechRecognition.cancel().then(
+                            (result) => setState(() {
+                                  _isListening = result;
+                                  resultText = "";
+                                }),
+                          );
+                  },
+                ),
+                FloatingActionButton(
+                  heroTag: 'mic',
+                  child: Icon(Icons.mic),
+                  onPressed: () {
+                    if (_isAvailable && !_isListening)
+                      _speechRecognition
+                          .listen(locale: "en_US")
+                          .then((result) => print('$result'));
+                  },
+                  backgroundColor: Colors.pink,
+                ),
+                FloatingActionButton(
+                  heroTag: 'stop',
+                  child: Icon(Icons.stop),
+                  mini: true,
+                  backgroundColor: Colors.deepPurple,
+                  onPressed: () {
+                    if (_isListening)
+                      _speechRecognition.stop().then(
+                            (result) => setState(() => _isListening = result),
+                          );
+                  },
+                ),
+              ],
+            ),
+            Container(
+              width: MediaQuery.of(context).size.width * 0.8,
+              decoration: BoxDecoration(
+                color: Colors.cyanAccent[100],
+                borderRadius: BorderRadius.circular(6.0),
+              ),
+              padding: EdgeInsets.symmetric(
+                vertical: 8.0,
+                horizontal: 12.0,
+              ),
+              child: Text(
+                resultText,
+                style: TextStyle(fontSize: 24.0),
+              ),
+            )
+          ],
+        ),
+      ),
+    );
   }
 }

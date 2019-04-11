@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:math' as math;
+import 'package:charts_flutter/flutter.dart' as charts;
 
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
@@ -10,12 +11,42 @@ class Receipt extends StatefulWidget {
 }
 
 class _ReceiptState extends State<Receipt> {
+  static List<charts.Series<OrdinalSales, String>> _createSampleData() {
+    final data = [
+      new OrdinalSales('Jan', 500),
+      new OrdinalSales('Feb', 800),
+      new OrdinalSales('Mar', 400),
+      new OrdinalSales('April', 700),
+    ];
+
+    return [
+      new charts.Series<OrdinalSales, String>(
+        id: 'Sales',
+        colorFn: (_, __) => charts.MaterialPalette.blue.shadeDefault,
+        domainFn: (OrdinalSales sales, _) => sales.year,
+        measureFn: (OrdinalSales sales, _) => sales.sales,
+        data: data,
+      )
+    ];
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('YOUR ORDERS'),
         backgroundColor: Colors.red,
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(
+              FontAwesomeIcons.chartBar,
+            ),
+            onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => SimpleBarChart(_createSampleData()))),
+          ),
+        ],
       ),
       body: StreamBuilder<QuerySnapshot>(
           stream: Firestore.instance.collection('orders').snapshots(),
@@ -26,8 +57,10 @@ class _ReceiptState extends State<Receipt> {
                 child: Text('Error: ${snapshot.error}'),
               );
             if (!snapshot.hasData)
-              return CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.red),
+              return Center(
+                child: CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.red),
+                ),
               );
             switch (snapshot.connectionState) {
               case ConnectionState.waiting:
@@ -37,29 +70,33 @@ class _ReceiptState extends State<Receipt> {
                   ),
                 );
               default:
-                return ListView(
-                  padding: EdgeInsets.all(8.0),
-                  children:
-                      snapshot.data.documents.map((DocumentSnapshot document) {
-                    return Card(
-                      elevation: 10.0,
-                      child: ListTile(
-                        leading: Icon(FontAwesomeIcons.receipt),
-                        title: Text(document['order']),
-                        trailing:
-                            Text(document['date'].toString().substring(0, 16)),
-                        onTap: () => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => ShowIndividualReceipt(
-                                    orderNumber: document['order'],
-                                    orderDate: document['date'],
-                                  ),
-                            )),
-                      ),
-                    );
-                  }).toList(),
-                );
+                return snapshot.data.documents.length > 0
+                    ? ListView(
+                        padding: EdgeInsets.all(8.0),
+                        children: snapshot.data.documents
+                            .map((DocumentSnapshot document) {
+                          return Card(
+                            elevation: 10.0,
+                            child: ListTile(
+                              leading: Icon(FontAwesomeIcons.receipt),
+                              title: Text(document['order']),
+                              trailing: Text(
+                                  document['date'].toString().substring(0, 16)),
+                              onTap: () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => ShowIndividualReceipt(
+                                          orderNumber: document['order'],
+                                          orderDate: document['date'],
+                                        ),
+                                  )),
+                            ),
+                          );
+                        }).toList(),
+                      )
+                    : Center(
+                        child: Text('No transactions yet!'),
+                      );
             }
           }),
     );
@@ -420,4 +457,45 @@ class _ShowIndividualReceiptState extends State<ShowIndividualReceipt> {
       ),
     );
   }
+}
+
+class SimpleBarChart extends StatelessWidget {
+  final List<charts.Series> seriesList;
+  final bool animate;
+
+  SimpleBarChart(this.seriesList, {this.animate});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.red,
+        title: Text(
+          'Your monthly purchase history',
+          style: TextStyle(
+            color: Colors.white,
+          ),
+        ),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Center(
+          child: charts.BarChart(
+            seriesList,
+            animate: animate,
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Create one series with sample hard coded data.
+
+}
+
+class OrdinalSales {
+  final String year;
+  final int sales;
+
+  OrdinalSales(this.year, this.sales);
 }
