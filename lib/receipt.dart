@@ -120,19 +120,28 @@ class _ShowReceiptState extends State<ShowReceipt> {
   }
 
   Future<void> _updateOrderTable() async {
-    Firestore.instance.collection('cart').getDocuments().then((snapshot) {
+    Firestore.instance
+        .collection('order' + _orderNumber.toString())
+        .getDocuments()
+        .then((snapshot) {
       for (DocumentSnapshot ds in snapshot.documents) {
-        Firestore.instance.runTransaction((Transaction transaction) async {
-          CollectionReference reference =
-              Firestore.instance.collection('order' + _orderNumber.toString());
-          await reference.add({
-            "name": ds['name'],
-            "quantity": ds['quantity'],
-            "unit": ds['unit'],
-            "price": _randomNo.nextInt(100),
-          });
-        });
+        ds.reference.delete();
       }
+    }).then((val) {
+      Firestore.instance.collection('cart').getDocuments().then((snapshot) {
+        for (DocumentSnapshot ds in snapshot.documents) {
+          Firestore.instance.runTransaction((Transaction transaction) async {
+            CollectionReference reference = Firestore.instance
+                .collection('order' + _orderNumber.toString());
+            await reference.add({
+              "name": ds['name'],
+              "quantity": ds['quantity'],
+              "unit": ds['unit'],
+              "price": _randomNo.nextInt(100),
+            });
+          });
+        }
+      });
     });
   }
 
@@ -169,17 +178,6 @@ class _ShowReceiptState extends State<ShowReceipt> {
 
   var sum = 0;
   var values;
-  Future<void> _getOrderTotals() async {
-    await Firestore.instance
-        .collection('order' + _orderNumber.toString())
-        .getDocuments()
-        .then((snapshot) {
-      snapshot.documents.map((document) {
-//        print('order' + _orderNumber.toString());
-        print("PRICE: " + document['price'].toString());
-      });
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -276,6 +274,7 @@ class _ShowReceiptState extends State<ShowReceipt> {
                               shrinkWrap: true,
                               children: snapshot.data.documents
                                   .map((DocumentSnapshot document) {
+                                values = 0;
                                 values = document['price'];
                                 sum += values;
                                 return Column(
