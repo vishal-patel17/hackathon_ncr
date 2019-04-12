@@ -21,6 +21,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:numberpicker/numberpicker.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
+import 'package:speech_recognition/speech_recognition.dart';
 
 class ShoppingList extends StatefulWidget {
   @override
@@ -829,6 +830,7 @@ class _InnerListState extends State<InnerList> {
   String _barcodeData;
   String _currentQuantity = 1.toString();
   String _newValue;
+  String _audioValue = '';
 
   Future<void> _showDialog(DocumentSnapshot document) {
     return showDialog<int>(
@@ -1016,6 +1018,18 @@ class _InnerListState extends State<InnerList> {
         },
       ),
     ));
+    childButtons.add(UnicornButton(
+      hasLabel: true,
+      labelText: "Speak an item name",
+      currentButton: FloatingActionButton(
+        mini: true,
+        heroTag: "speak",
+        backgroundColor: Colors.redAccent,
+        child: Icon(FontAwesomeIcons.microphone),
+        onPressed: () {},
+      ),
+    ));
+
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.listName),
