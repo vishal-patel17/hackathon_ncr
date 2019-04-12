@@ -221,6 +221,7 @@ class _ShowReceiptState extends State<ShowReceipt> {
                         child: CircularProgressIndicator(),
                       );
                     default:
+                      sum = 0;
                       return Column(
                         mainAxisSize: MainAxisSize.max,
                         children: <Widget>[
