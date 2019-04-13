@@ -23,6 +23,11 @@ import 'package:numberpicker/numberpicker.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:speech_recognition/speech_recognition.dart';
 
+SpeechRecognition speechRecognition;
+bool isAvailable = false;
+bool isListening = false;
+String resultText = "";
+
 class ShoppingList extends StatefulWidget {
   @override
   _ShoppingListState createState() => _ShoppingListState();
@@ -30,6 +35,37 @@ class ShoppingList extends StatefulWidget {
 
 class _ShoppingListState extends State<ShoppingList> {
   String _listName;
+  @override
+  void initState() {
+    super.initState();
+    initSpeechRecognizer();
+  }
+
+  void initSpeechRecognizer() {
+    speechRecognition = SpeechRecognition();
+
+    speechRecognition.setAvailabilityHandler(
+      (bool result) => setState(() => isAvailable = result),
+    );
+
+    speechRecognition.setRecognitionStartedHandler(
+      () => setState(() => isListening = true),
+    );
+
+    speechRecognition.setRecognitionResultHandler(
+      (String speech) => setState(() {
+            resultText = speech;
+          }),
+    );
+
+    speechRecognition.setRecognitionCompleteHandler(
+      () => setState(() => isListening = false),
+    );
+
+    speechRecognition.activate().then(
+          (result) => setState(() => isAvailable = result),
+        );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -830,7 +866,56 @@ class _InnerListState extends State<InnerList> {
   String _barcodeData;
   String _currentQuantity = 1.toString();
   String _newValue;
-  String _audioValue = '';
+
+  SpeechRecognition _speechRecognition;
+  bool _isAvailable = false;
+  bool _isListening = false;
+  String resultText = "";
+
+  @override
+  void initState() {
+    super.initState();
+    initSpeechRecognizer();
+  }
+
+  void initSpeechRecognizer() {
+    _speechRecognition = SpeechRecognition();
+
+    _speechRecognition.setAvailabilityHandler(
+      (bool result) => setState(() => _isAvailable = result),
+    );
+
+    _speechRecognition.setRecognitionStartedHandler(
+      () => setState(() => _isListening = true),
+    );
+
+    _speechRecognition.setRecognitionResultHandler(
+      (String speech) => setState(() {
+            resultText = speech;
+            if (resultText.isNotEmpty) {
+              Firestore.instance
+                  .runTransaction((Transaction transaction) async {
+                CollectionReference reference =
+                    Firestore.instance.collection(widget.listName);
+                await reference.add({
+                  "name": resultText,
+                  "quantity": _currentQuantity,
+                  "unit": 'l',
+                  "price": '50',
+                });
+              });
+            }
+          }),
+    );
+
+    _speechRecognition.setRecognitionCompleteHandler(
+      () => setState(() => _isListening = false),
+    );
+
+    _speechRecognition.activate().then(
+          (result) => setState(() => _isAvailable = result),
+        );
+  }
 
   Future<void> _showDialog(DocumentSnapshot document) {
     return showDialog<int>(
@@ -1026,7 +1111,9 @@ class _InnerListState extends State<InnerList> {
         heroTag: "speak",
         backgroundColor: Colors.redAccent,
         child: Icon(FontAwesomeIcons.microphone),
-        onPressed: () {},
+        onPressed: () {
+          _speechRecognition.listen(locale: "en_US");
+        },
       ),
     ));
 
@@ -1063,80 +1150,150 @@ class _InnerListState extends State<InnerList> {
             default:
               return Column(
                 children: <Widget>[
-                  ListView(
-                    shrinkWrap: true,
-                    children: snapshot.data.documents
-                        .map((DocumentSnapshot document) {
-                      return Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Card(
-                          elevation: 10.0,
-                          child: ListTile(
-                            title: Row(
-                              mainAxisSize: MainAxisSize.max,
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: <Widget>[
-                                Text(
-                                  document['name'],
-                                  style: TextStyle(fontSize: 20.0),
-                                ),
-                                Spacer(),
-                                Column(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  children: <Widget>[
-                                    Text(
-                                      "${document['quantity']}${document['unit']}",
-                                    ),
+                  Expanded(
+                    child: ListView(
+                      shrinkWrap: true,
+                      children: snapshot.data.documents
+                          .map((DocumentSnapshot document) {
+                        return Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Card(
+                            elevation: 10.0,
+                            child: ListTile(
+                              title: Row(
+                                mainAxisSize: MainAxisSize.max,
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: <Widget>[
+                                  Text(
+                                    document['name'],
+                                    style: TextStyle(fontSize: 20.0),
+                                  ),
+                                  Spacer(),
+                                  Column(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: <Widget>[
+                                      Text(
+                                        "${document['quantity']}${document['unit']}",
+                                      ),
 //                                SizedBox(width: 10.0),
-                                    Card(
-                                      color: Colors.cyan,
-                                      elevation: 10.0,
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(3.0),
-                                        child: Text(
-                                          "Rs ${document['price']}/kg",
-                                          style: TextStyle(fontSize: 12.0),
+                                      Card(
+                                        color: Colors.cyan,
+                                        elevation: 10.0,
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(3.0),
+                                          child: Text(
+                                            "Rs ${document['price']}/kg",
+                                            style: TextStyle(fontSize: 12.0),
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                            leading: IconButton(
-                              icon: Icon(FontAwesomeIcons.plus),
-                              onPressed: () => _showDialog(document),
-                            ),
-                            trailing: IconButton(
-                              icon: Icon(
-                                FontAwesomeIcons.times,
-                                color: Colors.grey,
+                                    ],
+                                  ),
+                                ],
                               ),
-                              onPressed: () {
+                              leading: IconButton(
+                                icon: Icon(FontAwesomeIcons.plus),
+                                onPressed: () => _showDialog(document),
+                              ),
+                              trailing: IconButton(
+                                icon: Icon(
+                                  FontAwesomeIcons.times,
+                                  color: Colors.grey,
+                                ),
+                                onPressed: () {
+                                  showDialog(
+                                      context: context,
+                                      builder: (BuildContext context) {
+                                        return AlertDialog(
+                                          title: Text("Delete " +
+                                              document['name'] +
+                                              " ?"),
+                                          actions: <Widget>[
+                                            FlatButton(
+                                              child: Icon(Icons.done),
+                                              onPressed: () {
+                                                Firestore.instance
+                                                    .collection(widget.listName)
+                                                    .document(
+                                                        document.documentID)
+                                                    .delete();
+
+                                                Navigator.pop(context);
+                                                //refreshPage();
+                                              },
+                                            ),
+                                            FlatButton(
+                                              child: Icon(Icons.cancel),
+                                              onPressed: () {
+                                                Navigator.pop(context);
+                                              },
+                                            ),
+                                          ],
+                                        );
+                                      });
+                                },
+                              ),
+                              onTap: () {
                                 showDialog(
                                     context: context,
                                     builder: (BuildContext context) {
                                       return AlertDialog(
-                                        title: Text("Delete " +
-                                            document['name'] +
-                                            " ?"),
+                                        title:
+                                            Text("Update ${document['name']}"),
+                                        content: TextField(
+                                            decoration: InputDecoration(
+                                              labelText: 'Enter New value',
+                                            ),
+                                            autofocus: true,
+                                            textCapitalization:
+                                                TextCapitalization.sentences,
+                                            keyboardType: TextInputType.text,
+                                            onChanged: (String value) {
+                                              setState(() {
+                                                this._newValue = value;
+                                              });
+                                            }),
                                         actions: <Widget>[
-                                          FlatButton(
-                                            child: Icon(Icons.done),
+                                          RaisedButton(
+                                            color: Colors.red,
+                                            elevation: 10.0,
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(30.0),
+                                            ),
+                                            child: Text(
+                                              'Update',
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                              ),
+                                            ),
                                             onPressed: () {
-                                              Firestore.instance
-                                                  .collection(widget.listName)
-                                                  .document(document.documentID)
-                                                  .delete();
-
-                                              Navigator.pop(context);
-                                              //refreshPage();
+                                              Firestore.instance.runTransaction(
+                                                  (transaction) async {
+                                                await transaction.update(
+                                                    document.reference,
+                                                    <String, dynamic>{
+                                                      'name': this._newValue
+                                                    });
+                                              });
+                                              Navigator.of(context).pop();
                                             },
                                           ),
-                                          FlatButton(
-                                            child: Icon(Icons.cancel),
+                                          RaisedButton(
+                                            color: Colors.red,
+                                            elevation: 10.0,
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(30.0),
+                                            ),
+                                            child: Text(
+                                              'Dismiss',
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                              ),
+                                            ),
                                             onPressed: () {
-                                              Navigator.pop(context);
+                                              Navigator.of(context).pop();
                                             },
                                           ),
                                         ],
@@ -1144,76 +1301,10 @@ class _InnerListState extends State<InnerList> {
                                     });
                               },
                             ),
-                            onTap: () {
-                              showDialog(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return AlertDialog(
-                                      title: Text("Update ${document['name']}"),
-                                      content: TextField(
-                                          decoration: InputDecoration(
-                                            labelText: 'Enter New value',
-                                          ),
-                                          autofocus: true,
-                                          textCapitalization:
-                                              TextCapitalization.sentences,
-                                          keyboardType: TextInputType.text,
-                                          onChanged: (String value) {
-                                            setState(() {
-                                              this._newValue = value;
-                                            });
-                                          }),
-                                      actions: <Widget>[
-                                        RaisedButton(
-                                          color: Colors.red,
-                                          elevation: 10.0,
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(30.0),
-                                          ),
-                                          child: Text(
-                                            'Update',
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                            ),
-                                          ),
-                                          onPressed: () {
-                                            Firestore.instance.runTransaction(
-                                                (transaction) async {
-                                              await transaction.update(
-                                                  document.reference,
-                                                  <String, dynamic>{
-                                                    'name': this._newValue
-                                                  });
-                                            });
-                                            Navigator.of(context).pop();
-                                          },
-                                        ),
-                                        RaisedButton(
-                                          color: Colors.red,
-                                          elevation: 10.0,
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(30.0),
-                                          ),
-                                          child: Text(
-                                            'Dismiss',
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                            ),
-                                          ),
-                                          onPressed: () {
-                                            Navigator.of(context).pop();
-                                          },
-                                        ),
-                                      ],
-                                    );
-                                  });
-                            },
                           ),
-                        ),
-                      );
-                    }).toList(),
+                        );
+                      }).toList(),
+                    ),
                   ),
                 ],
               );

@@ -3,8 +3,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:speech_recognition/speech_recognition.dart';
 
 import 'package:ncr_hachathon/receipes.dart';
-
-String result = "";
+import 'package:ncr_hachathon/shoppingList.dart';
 
 class ListSearch extends SearchDelegate<List> {
   final _list = [
@@ -32,18 +31,22 @@ class ListSearch extends SearchDelegate<List> {
   List<Widget> buildActions(BuildContext context) {
     return [
       IconButton(
-        icon: Icon(
-          FontAwesomeIcons.microphone,
-          size: 20.0,
-          color: Colors.black,
-        ),
-        onPressed: () => Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => RecordVoice(),
-              fullscreenDialog: true,
-            )),
-      ),
+          icon: Icon(
+            FontAwesomeIcons.microphone,
+            size: 20.0,
+            color: Colors.black,
+          ),
+          onPressed: () {
+            speechRecognition.listen(locale: "en_US").then((val) {
+              query = resultText;
+            });
+//            Navigator.push(
+//                context,
+//                MaterialPageRoute(
+//                  builder: (context) => RecordVoice(),
+//                  fullscreenDialog: true,
+//                ));
+          }),
       IconButton(
           icon: Icon(
             FontAwesomeIcons.times,
@@ -166,7 +169,6 @@ class _RecordVoiceState extends State<RecordVoice> {
     _speechRecognition.setRecognitionResultHandler(
       (String speech) => setState(() {
             resultText = speech;
-            result = resultText;
           }),
     );
 
