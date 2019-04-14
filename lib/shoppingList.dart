@@ -22,6 +22,7 @@ import 'package:qr_flutter/qr_flutter.dart';
 import 'package:numberpicker/numberpicker.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:speech_recognition/speech_recognition.dart';
+import 'package:mlkit/mlkit.dart' as mlkit;
 
 SpeechRecognition speechRecognition;
 bool isAvailable = false;
@@ -760,6 +761,7 @@ class _BudgetingState extends State<Budgeting> {
                     min: 0,
                     onDragging: (handlerIndex, lowerValue, upperValue) {
                       _lowerValue = lowerValue;
+                      // ignore: unused_local_variable
                       var _upperValue = upperValue;
                       setState(() {});
                     },
@@ -801,6 +803,7 @@ class _BudgetingState extends State<Budgeting> {
                   min: 0,
                   onDragging: (handlerIndex, lowerValue, upperValue) {
                     _lowerWeekValue = lowerValue;
+                    // ignore: unused_local_variable
                     var _upperValue = upperValue;
                     setState(() {});
                   },
@@ -841,6 +844,7 @@ class _BudgetingState extends State<Budgeting> {
                   min: 0,
                   onDragging: (handlerIndex, lowerValue, upperValue) {
                     _lowerMonthValue = lowerValue;
+                    // ignore: unused_local_variable
                     var _upperValue = upperValue;
                     setState(() {});
                   },
@@ -868,7 +872,9 @@ class _InnerListState extends State<InnerList> {
   String _newValue;
 
   SpeechRecognition _speechRecognition;
+  // ignore: unused_field
   bool _isAvailable = false;
+  // ignore: unused_field
   bool _isListening = false;
   String resultText = "";
 
@@ -940,6 +946,87 @@ class _InnerListState extends State<InnerList> {
         });
       }
     });
+  }
+
+  File _file;
+  Future<void> _detectImage() async {
+    var file = await ImagePicker.pickImage(source: ImageSource.camera);
+    setState(() {
+      _file = file;
+    });
+    List<mlkit.VisionLabel> _currentLabels = <mlkit.VisionLabel>[];
+    mlkit.FirebaseVisionLabelDetector detector =
+        mlkit.FirebaseVisionLabelDetector.instance;
+    var currentLabels =
+        await detector.detectFromBinary(_file?.readAsBytesSync());
+    setState(() {
+      _currentLabels = currentLabels;
+    });
+    _showLabels(_currentLabels);
+  }
+
+  _showLabels(List<mlkit.VisionLabel> labels) {
+    return showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return Scaffold(
+            appBar: AppBar(
+              backgroundColor: Colors.red,
+              title: Text(
+                'Pick one',
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
+            ),
+            body: Padding(
+              padding: EdgeInsets.all(10.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisSize: MainAxisSize.max,
+                children: <Widget>[
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: labels.length,
+                      itemBuilder: (context, i) {
+                        return Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Card(
+                            elevation: 10.0,
+                            child: ListTile(
+                              title: new Text(
+                                labels[i].label,
+                                style: TextStyle(
+                                  fontSize: 20.0,
+                                ),
+                              ),
+                              onTap: () {
+                                Firestore.instance.runTransaction(
+                                    (Transaction transaction) async {
+                                  CollectionReference reference = Firestore
+                                      .instance
+                                      .collection(widget.listName);
+                                  await reference.add({
+                                    "name": labels[i].label,
+                                    "quantity": _currentQuantity,
+                                    "unit": 'l',
+                                    "price": '50',
+                                  });
+                                });
+                                Navigator.of(context).pop();
+                              },
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        });
   }
 
   @override
@@ -1116,6 +1203,19 @@ class _InnerListState extends State<InnerList> {
         },
       ),
     ));
+    childButtons.add(UnicornButton(
+      hasLabel: true,
+      labelText: "Detect an Item",
+      currentButton: FloatingActionButton(
+        mini: true,
+        heroTag: "detect",
+        backgroundColor: Colors.redAccent,
+        child: Icon(FontAwesomeIcons.image),
+        onPressed: () {
+          _detectImage();
+        },
+      ),
+    ));
 
     return Scaffold(
       appBar: AppBar(
@@ -1169,27 +1269,18 @@ class _InnerListState extends State<InnerList> {
                                     style: TextStyle(fontSize: 20.0),
                                   ),
                                   Spacer(),
-                                  Column(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    children: <Widget>[
-                                      Text(
-                                        "${document['quantity']}${document['unit']}",
-                                      ),
-//                                SizedBox(width: 10.0),
-                                      Card(
-                                        color: Colors.cyan,
-                                        elevation: 10.0,
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(3.0),
-                                          child: Text(
-                                            "Rs ${document['price']}/kg",
-                                            style: TextStyle(fontSize: 12.0),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
+                                  Text(
+                                    "${document['quantity']}${document['unit']}",
+                                    style: TextStyle(
+                                      fontSize: 15.0,
+                                    ),
                                   ),
                                 ],
+                              ),
+                              dense: true,
+                              subtitle: Text(
+                                "Rs ${document['price']}/kg",
+                                style: TextStyle(fontSize: 13.0),
                               ),
                               leading: IconButton(
                                 icon: Icon(FontAwesomeIcons.plus),
@@ -1377,8 +1468,10 @@ class _CheckoutState extends State<Checkout> {
     final VisionText visionText =
         await textRecognizer.processImage(visionImage);
 
+    // ignore: unused_local_variable
     String text = visionText.text;
     for (TextBlock block in visionText.blocks) {
+      // ignore: unused_local_variable
       final String text = block.text;
 
       for (TextLine line in block.lines) {
