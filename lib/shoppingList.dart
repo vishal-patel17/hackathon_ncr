@@ -36,6 +36,7 @@ class ShoppingList extends StatefulWidget {
 
 class _ShoppingListState extends State<ShoppingList> {
   String _listName;
+  final _myController = TextEditingController();
   @override
   void initState() {
     super.initState();
@@ -255,65 +256,106 @@ class _ShoppingListState extends State<ShoppingList> {
             ),
           ),
           SizedBox(height: 50.0),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Align(
-              alignment: Alignment.topLeft,
-              child: FloatingActionButton(
-                heroTag: 'add',
-                child: Icon(
-                  FontAwesomeIcons.plus,
-                  color: Colors.white,
+          Row(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Align(
+                  alignment: Alignment.topLeft,
+                  child: FloatingActionButton(
+                    heroTag: 'add',
+                    child: Icon(
+                      FontAwesomeIcons.plus,
+                      color: Colors.white,
+                    ),
+                    elevation: 4.0,
+                    backgroundColor: Colors.red,
+                    onPressed: () {
+//                      showDialog(
+//                          context: context,
+//                          builder: (BuildContext context) {
+//                            return AlertDialog(
+//                              title: Text('Enter the name:'),
+//                              content: TextField(
+//                                textCapitalization:
+//                                    TextCapitalization.sentences,
+//                                keyboardType: TextInputType.text,
+//                                autofocus: true,
+//                                decoration: InputDecoration(
+//                                  border: OutlineInputBorder(
+//                                      borderRadius:
+//                                          BorderRadius.circular(40.0)),
+//                                ),
+//                                onChanged: (value) {
+//                                  setState(() {
+//                                    this._listName = value;
+//                                  });
+//                                },
+//                              ),
+//                              actions: <Widget>[
+//                                FlatButton(
+//                                  child: Text('Submit'),
+//                                  onPressed: () {
+//                                    Firestore.instance.runTransaction(
+//                                        (Transaction transaction) async {
+//                                      CollectionReference reference = Firestore
+//                                          .instance
+//                                          .collection('shopping_list');
+//                                      await reference.add({
+//                                        "list": _listName,
+//                                        "selected": false,
+//                                      });
+//                                    });
+//                                    Navigator.of(context).pop();
+//                                  },
+//                                ),
+//                                FlatButton(
+//                                  child: Text('Dismiss'),
+//                                  onPressed: () => Navigator.of(context).pop(),
+//                                ),
+//                              ],
+//                            );
+//                          });
+                    },
+                  ),
                 ),
-                elevation: 4.0,
-                backgroundColor: Colors.red,
-                onPressed: () {
-                  showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return AlertDialog(
-                          title: Text('Enter the name:'),
-                          content: TextField(
-                            textCapitalization: TextCapitalization.sentences,
-                            keyboardType: TextInputType.text,
-                            autofocus: true,
-                            decoration: InputDecoration(
-                              border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(40.0)),
-                            ),
-                            onChanged: (value) {
-                              setState(() {
-                                this._listName = value;
-                              });
-                            },
-                          ),
-                          actions: <Widget>[
-                            FlatButton(
-                              child: Text('Submit'),
-                              onPressed: () {
-                                Firestore.instance.runTransaction(
-                                    (Transaction transaction) async {
-                                  CollectionReference reference = Firestore
-                                      .instance
-                                      .collection('shopping_list');
-                                  await reference.add({
-                                    "list": _listName,
-                                    "selected": false,
-                                  });
-                                });
-                                Navigator.of(context).pop();
-                              },
-                            ),
-                            FlatButton(
-                              child: Text('Dismiss'),
-                              onPressed: () => Navigator.of(context).pop(),
-                            ),
-                          ],
-                        );
-                      });
-                },
               ),
-            ),
+              Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Container(
+                  width: MediaQuery.of(context).size.width / 1.5,
+                  child: TextField(
+                    controller: _myController,
+                    textCapitalization: TextCapitalization.sentences,
+                    keyboardType: TextInputType.text,
+                    autofocus: false,
+                    decoration: InputDecoration(
+                      hintText: 'Enter list name',
+                      labelText: 'Create a new list',
+                    ),
+                    onSubmitted: (value) {
+                      setState(() {
+                        this._listName = value;
+                        if (_listName.isNotEmpty) {
+                          Firestore.instance
+                              .runTransaction((Transaction transaction) async {
+                            CollectionReference reference =
+                                Firestore.instance.collection('shopping_list');
+                            await reference.add({
+                              "list": _listName,
+                              "selected": false,
+                            });
+                          });
+                        }
+                        _myController.clear();
+                      });
+                    },
+                  ),
+                ),
+              ),
+            ],
           ),
           SizedBox(height: 50.0),
           StreamBuilder<QuerySnapshot>(
