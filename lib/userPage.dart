@@ -141,6 +141,7 @@ class _HomeState extends State<Home> {
       final photos = f.photos;
       list.add(
         CachedNetworkImage(
+          fit: BoxFit.fitWidth,
           width: 400.0,
           height: 200.0,
           imageUrl: buildPhotoURL(photos[0].photoReference),
