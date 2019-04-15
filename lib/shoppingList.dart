@@ -715,6 +715,12 @@ class _BudgetingState extends State<Budgeting> {
           ),
         ),
         backgroundColor: Colors.red,
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(FontAwesomeIcons.bell),
+            onPressed: () {},
+          ),
+        ],
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: FloatingActionButton(
@@ -771,7 +777,7 @@ class _BudgetingState extends State<Budgeting> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.all(18.0),
             child: Column(
               children: <Widget>[
                 Row(
@@ -812,7 +818,7 @@ class _BudgetingState extends State<Budgeting> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.all(18.0),
             child: Column(
               children: <Widget>[
                 Row(

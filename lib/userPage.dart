@@ -16,6 +16,8 @@ import 'package:ncr_hachathon/shoppingList.dart';
 import 'package:numberpicker/numberpicker.dart';
 import 'package:flare_flutter/flare_actor.dart';
 
+DateTime date;
+
 class Home extends StatefulWidget {
   _HomeState createState() => _HomeState();
 }
@@ -578,6 +580,23 @@ class _MyCartState extends State<MyCart> {
                               ],
                             ),
                           ),
+                          Padding(
+                            padding: const EdgeInsets.all(15.0),
+                            child: Center(
+                              child: GestureDetector(
+                                onTap: () {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => BookDelivery(),
+                                        fullscreenDialog: true,
+                                      ));
+                                },
+                                child: Text(
+                                    "Delivered by: ${date == null ? SizedBox() : date}"),
+                              ),
+                            ),
+                          ),
                           Divider(),
                           SizedBox(height: 8.0),
                           Expanded(
@@ -707,7 +726,6 @@ class _BookDeliveryState extends State<BookDelivery> {
   // Changeable in demo
   InputType inputType = InputType.both;
   bool editable = false;
-  DateTime date;
   @override
   Widget build(BuildContext context) {
     return Scaffold(

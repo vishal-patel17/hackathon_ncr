@@ -119,13 +119,16 @@ class _ChatState extends State<Chat> {
                           valueColor: AlwaysStoppedAnimation<Color>(Colors.red),
                         ),
                       )
-                    : ListView(
-                        children: <Widget>[
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Text(_response),
+                    : Padding(
+                        padding: EdgeInsets.all(10.0),
+                        child: Center(
+                          child: Text(
+                            _response,
+                            style: TextStyle(
+                              fontSize: 20.0,
+                            ),
                           ),
-                        ],
+                        ),
                       ),
               ),
             ),

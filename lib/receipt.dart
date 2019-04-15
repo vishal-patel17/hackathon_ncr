@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:math' as math;
 import 'package:charts_flutter/flutter.dart' as charts;
-
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as Pdf;
+import 'package:printing/printing.dart';
 
 class Receipt extends StatefulWidget {
   @override
@@ -327,6 +329,23 @@ class ShowIndividualReceipt extends StatefulWidget {
 }
 
 class _ShowIndividualReceiptState extends State<ShowIndividualReceipt> {
+  List<int> buildPdf(PdfPageFormat format) {
+    final PdfDoc pdf = PdfDoc()
+      ..addPage(
+        Pdf.Page(
+            pageFormat: format,
+            build: (Pdf.Context context) {
+              return Pdf.ConstrainedBox(
+                constraints: const Pdf.BoxConstraints.expand(),
+                child: Pdf.FittedBox(
+                  child: Pdf.Text(''),
+                ),
+              );
+            }),
+      );
+    return pdf.save();
+  }
+
   var sum = 0;
   var values;
   @override
@@ -337,6 +356,31 @@ class _ShowIndividualReceiptState extends State<ShowIndividualReceipt> {
       appBar: AppBar(
         backgroundColor: Colors.red,
         title: Text(widget.orderNumber),
+        actions: <Widget>[
+          PopupMenuButton(
+            elevation: 3.0,
+            icon: Icon(
+              FontAwesomeIcons.ellipsisV,
+              color: Colors.white,
+              size: 20.0,
+            ),
+            itemBuilder: (_) => <PopupMenuItem<String>>[
+                  PopupMenuItem<String>(
+                      child: const Text(
+                        'Save as PDF/Print',
+                        style: TextStyle(
+                          fontSize: 15.0,
+                        ),
+                      ),
+                      value: 'Option 1'),
+                ],
+            onSelected: (value) {
+              if (value == 'Option 1') {
+                Printing.layoutPdf(onLayout: buildPdf);
+              }
+            },
+          ),
+        ],
       ),
       body: Center(
         child: Container(
