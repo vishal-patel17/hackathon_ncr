@@ -593,7 +593,7 @@ class _MyCartState extends State<MyCart> {
                                       ));
                                 },
                                 child: Text(
-                                    "Delivered by: ${date == null ? SizedBox() : date}"),
+                                    "Delivered by: ${date == null ? "No date selected" : date}"),
                               ),
                             ),
                           ),

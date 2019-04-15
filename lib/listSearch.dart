@@ -13,7 +13,7 @@ class ListSearch extends SearchDelegate<List> {
     "Fish",
   ];
   final _recentSearch = [
-    "Pizza",
+    "Fish",
     "Burger",
   ];
   @override
