@@ -73,6 +73,7 @@ class _ChatState extends State<Chat> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        title: Text('Help & Feedback'),
         backgroundColor: Colors.red,
         actions: <Widget>[
           PopupMenuButton(
