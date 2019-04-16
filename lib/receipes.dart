@@ -305,7 +305,7 @@ class _MethodsState extends State<Methods> {
             initialIntegerValue: 1,
             minValue: 1,
             maxValue: 10,
-            title: Text("Pick quantity"),
+            title: Text("Select number of people"),
           );
         }).then((value) {
       if (value != null) {
