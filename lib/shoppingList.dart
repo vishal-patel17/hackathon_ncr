@@ -1155,7 +1155,7 @@ class _InnerListState extends State<InnerList> {
         child: Icon(FontAwesomeIcons.barcode),
         onPressed: () async {
           String barcodeScanRes =
-              await FlutterBarcodeScanner.scanBarcode('red', 'Cancel');
+              await FlutterBarcodeScanner.scanBarcode('red', 'Cancel', true);
           if (barcodeScanRes == '8901764012273') {
             setState(() {
               this._barcodeData = 'Coke';
