@@ -765,9 +765,10 @@ class _BudgetingState extends State<Budgeting> {
         ],
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: FloatingActionButton.extended(
         onPressed: () {},
-        child: Icon(FontAwesomeIcons.save),
+        icon: Icon(FontAwesomeIcons.save),
+        label: Text('Save'),
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.start,
