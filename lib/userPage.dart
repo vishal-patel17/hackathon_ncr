@@ -528,6 +528,7 @@ class _MyCartState extends State<MyCart> {
                     context,
                     MaterialPageRoute(
                       builder: (context) => Checkout(),
+                      fullscreenDialog: true,
                     ));
               },
             ),
