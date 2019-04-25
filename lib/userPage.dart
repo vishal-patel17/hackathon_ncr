@@ -12,9 +12,11 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:intl/intl.dart';
 import 'package:ncr_hachathon/home.dart';
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
+import 'package:ncr_hachathon/main.dart';
 import 'package:ncr_hachathon/shoppingList.dart';
 import 'package:numberpicker/numberpicker.dart';
 import 'package:flare_flutter/flare_actor.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 DateTime date;
 
@@ -53,7 +55,39 @@ class _HomeState extends State<Home> {
   @override
   void initState() {
     super.initState();
+    _getlocation();
     locateUser();
+  }
+
+  Future _getlocation() async {
+    ServiceStatus serviceStatus = await PermissionHandler()
+        .checkServiceStatus(PermissionGroup.location)
+        .then((val) {
+      if (val.value == 0) {
+        showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: Text('Location service disabled!'),
+                content: Text(
+                    'Please enable location service to find nearest stores'),
+                actions: <Widget>[
+                  RaisedButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: Text(
+                      'Dismiss',
+                      style: TextStyle(
+                        color: Colors.white,
+                      ),
+                    ),
+                    color: Colors.red,
+                    elevation: 8.0,
+                  ),
+                ],
+              );
+            });
+      }
+    });
   }
 
   Future<Position> locateUser() async {
