@@ -1837,17 +1837,22 @@ class _CheckoutState extends State<Checkout> {
                                     padding: const EdgeInsets.only(
                                         left: 8.0,
                                         right: 8.0,
-                                        top: 8.0,
-                                        bottom: 20.0),
+                                        top: 0.0,
+                                        bottom: 0.0),
                                     child: Container(
                                       height: 60,
                                       width: 80,
-                                      child: TextField(
-                                        maxLines: 1,
-                                        keyboardType: TextInputType.number,
-                                        decoration: InputDecoration(
-                                          hintText: 'CVV',
-                                          border: OutlineInputBorder(),
+                                      child: Padding(
+                                        padding:
+                                            const EdgeInsets.only(bottom: 3.0),
+                                        child: TextField(
+                                          maxLines: 1,
+                                          maxLength: 3,
+                                          keyboardType: TextInputType.number,
+                                          decoration: InputDecoration(
+                                            hintText: 'CVV',
+//                                            border: OutlineInputBorder(),
+                                          ),
                                         ),
                                       ),
                                     ),
