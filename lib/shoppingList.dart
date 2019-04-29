@@ -694,8 +694,10 @@ class _ShoppingListState extends State<ShoppingList> {
                                                                   ),
                                                                 ],
                                                               )
-                                                            : Text(
-                                                                'List Empty!'),
+                                                            : Center(
+                                                                child: Text(
+                                                                    'List Empty!'),
+                                                              ),
                                                       );
                                                   }
                                                 }),
