@@ -107,18 +107,22 @@ class ListSearch extends SearchDelegate<List> {
                     ],
                   ),
                 ),
-                ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: results.length,
-                  itemBuilder: (context, index) => ListTile(
-                        leading: Icon(
-                          FontAwesomeIcons.utensils,
-                          color: Colors.grey,
+                Expanded(
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: results.length,
+                    itemBuilder: (context, index) => ListTile(
+                          leading: Icon(
+                            FontAwesomeIcons.utensils,
+                            color: Colors.grey,
+                          ),
+                          title: Text(results[index]),
+                          onTap: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => Methods())),
                         ),
-                        title: Text(results[index]),
-                        onTap: () => Navigator.push(context,
-                            MaterialPageRoute(builder: (context) => Methods())),
-                      ),
+                  ),
                 ),
               ],
             )
