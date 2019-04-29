@@ -336,21 +336,21 @@ class _ShoppingListState extends State<ShoppingList> {
                       labelText: 'Create a new list',
                     ),
                     onSubmitted: (value) {
-                      setState(() {
-                        this._listName = value;
-                        if (_listName.isNotEmpty) {
-                          Firestore.instance
-                              .runTransaction((Transaction transaction) async {
-                            CollectionReference reference =
-                                Firestore.instance.collection('shopping_list');
-                            await reference.add({
-                              "list": _listName,
-                              "selected": false,
-                            });
+//                      setState(() {
+                      this._listName = value;
+                      if (_listName.isNotEmpty) {
+                        Firestore.instance
+                            .runTransaction((Transaction transaction) async {
+                          CollectionReference reference =
+                              Firestore.instance.collection('shopping_list');
+                          await reference.add({
+                            "list": _listName,
+                            "selected": false,
                           });
-                        }
-                        _myController.clear();
-                      });
+                        });
+                      }
+                      _myController.clear();
+//                      });
                     },
                   ),
                 ),
@@ -416,60 +416,56 @@ class _ShoppingListState extends State<ShoppingList> {
                                                           MaterialTapTargetSize
                                                               .padded,
                                                       onChanged: (bool x) {
-                                                        setState(() {
+                                                        //setState(() {
+                                                        Firestore.instance
+                                                            .collection(
+                                                                'shopping_list')
+                                                            .document(document
+                                                                .documentID)
+                                                            .updateData({
+                                                          'selected': x,
+                                                        });
+                                                        if (x) {
                                                           Firestore.instance
                                                               .collection(
-                                                                  'shopping_list')
-                                                              .document(document
-                                                                  .documentID)
-                                                              .updateData({
-                                                            'selected': x,
-                                                          });
-                                                          if (x) {
-                                                            Firestore.instance
-                                                                .collection(
-                                                                    document[
-                                                                        'list'])
-                                                                .getDocuments()
-                                                                .then(
-                                                                    (snapshot) {
-                                                              for (DocumentSnapshot ds
-                                                                  in snapshot
-                                                                      .documents) {
-                                                                Firestore
-                                                                    .instance
-                                                                    .runTransaction(
-                                                                        (Transaction
-                                                                            transaction) async {
-                                                                  CollectionReference
-                                                                      reference =
-                                                                      Firestore
-                                                                          .instance
-                                                                          .collection(
-                                                                              'cart');
-                                                                  await reference
-                                                                      .add({
-                                                                    "name": ds[
-                                                                        'name'],
-                                                                    "quantity":
-                                                                        ds['quantity'],
-                                                                    "unit": ds[
-                                                                        'unit']
-                                                                  });
+                                                                  document[
+                                                                      'list'])
+                                                              .getDocuments()
+                                                              .then((snapshot) {
+                                                            for (DocumentSnapshot ds
+                                                                in snapshot
+                                                                    .documents) {
+                                                              Firestore.instance
+                                                                  .runTransaction(
+                                                                      (Transaction
+                                                                          transaction) async {
+                                                                CollectionReference
+                                                                    reference =
+                                                                    Firestore
+                                                                        .instance
+                                                                        .collection(
+                                                                            'cart');
+                                                                await reference
+                                                                    .add({
+                                                                  "name": ds[
+                                                                      'name'],
+                                                                  "quantity": ds[
+                                                                      'quantity'],
+                                                                  "unit":
+                                                                      ds['unit']
                                                                 });
-                                                              }
-                                                            });
-                                                            Flushbar(
-                                                              title: "Info",
-                                                              message:
-                                                                  "${document['list']} added to cart",
-                                                              duration:
-                                                                  Duration(
-                                                                      seconds:
-                                                                          3),
-                                                            )..show(context);
-                                                          }
-                                                        });
+                                                              });
+                                                            }
+                                                          });
+                                                          Flushbar(
+                                                            title: "Info",
+                                                            message:
+                                                                "${document['list']} added to cart",
+                                                            duration: Duration(
+                                                                seconds: 3),
+                                                          )..show(context);
+                                                        }
+                                                        // });
                                                       }),
                                                   PopupMenuButton(
                                                     elevation: 3.0,
@@ -679,9 +675,10 @@ class _ShoppingListState extends State<ShoppingList> {
                                                                               Spacer(),
                                                                               GestureDetector(
                                                                                 onTap: () {
-                                                                                  setState(() {
-                                                                                    Firestore.instance.collection(document['list']).document(ds.documentID).delete();
-                                                                                  });
+                                                                                  Firestore.instance.collection(document['list']).document(ds.documentID).delete();
+//                                                                                  setState(() {
+//
+//                                                                                  });
                                                                                 },
                                                                                 child: Icon(
                                                                                   FontAwesomeIcons.trash,
