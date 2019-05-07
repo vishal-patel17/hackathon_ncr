@@ -381,9 +381,14 @@ class _EmailLoginState extends State<EmailLogin> {
                 text: 'Sign in with Email',
                 icon: Icons.email,
                 onPressed: () {
-                  if (_formKey.currentState.validate()) {
-                    _formKey.currentState.save();
-                  }
+                  Navigator.of(context).pop();
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => Home()),
+                  );
+//                  if (_formKey.currentState.validate()) {
+//                    _formKey.currentState.save();
+//                  }
                 },
                 backgroundColor: Colors.red[700],
               ),

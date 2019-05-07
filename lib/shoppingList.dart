@@ -255,7 +255,7 @@ class _ShoppingListState extends State<ShoppingList> {
               ),
             ),
           ),
-          SizedBox(height: 50.0),
+          SizedBox(height: 30.0),
           Row(
             mainAxisSize: MainAxisSize.max,
             mainAxisAlignment: MainAxisAlignment.start,
@@ -265,6 +265,7 @@ class _ShoppingListState extends State<ShoppingList> {
                 child: Align(
                   alignment: Alignment.topLeft,
                   child: FloatingActionButton(
+                    mini: true,
                     heroTag: 'add',
                     child: Icon(
                       FontAwesomeIcons.plus,
