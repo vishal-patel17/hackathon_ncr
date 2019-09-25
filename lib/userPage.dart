@@ -134,8 +134,9 @@ class _HomeState extends State<Home> {
     final location = Location(_center.latitude, _center.longitude);
     final result = await _places.searchNearbyWithRadius(
       location,
-      9000,
-      name: 'metro cash and carry wholesaler',
+      1000,
+      name: 'ratnadeep',
+      //name: 'metro cash and carry wholesaler',
       type: 'grocery supermarket store',
     );
 
