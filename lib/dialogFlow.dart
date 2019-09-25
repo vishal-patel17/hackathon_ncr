@@ -106,7 +106,7 @@ class _ChatState extends State<Chat> {
       ),
       body: Column(
         children: <Widget>[
-          new Flexible(
+          new Flexible( 
             child: Padding(
               padding: EdgeInsets.all(8.0),
               child: Card(
