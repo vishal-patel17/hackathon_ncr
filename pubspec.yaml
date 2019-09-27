@@ -42,7 +42,7 @@ dev_dependencies:
   flutter_xlider: ^2.2.1
   datetime_picker_formfield: ^0.1.8
   image_picker: ^0.5.0+9
-  firebase_ml_vision: ^0.9.2+1
+#  firebase_ml_vision: ^0.9.2+2
   unicorndial: ^1.1.5
   flushbar: ^1.7.0
   flutter_nfc_reader: ^0.0.23
