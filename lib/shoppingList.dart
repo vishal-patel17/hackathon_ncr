@@ -16,7 +16,7 @@ import 'package:ncr_hachathon/receipes.dart';
 import 'package:ncr_hachathon/receipt.dart';
 import 'package:unicorndial/unicorndial.dart';
 import 'package:flushbar/flushbar.dart';
-import 'package:firebase_ml_vision/firebase_ml_vision.dart';
+//import 'package:firebase_ml_vision/firebase_ml_vision.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:numberpicker/numberpicker.dart';
@@ -1507,42 +1507,42 @@ class _CheckoutState extends State<Checkout> {
     });
   }
 
-  Future<void> _scanCard() async {
-    final File imageFile =
-        await ImagePicker.pickImage(source: ImageSource.gallery);
-    final FirebaseVisionImage visionImage =
-        FirebaseVisionImage.fromFile(imageFile);
-    final TextRecognizer textRecognizer =
-        FirebaseVision.instance.textRecognizer();
-    final VisionText visionText =
-        await textRecognizer.processImage(visionImage);
-
-    // ignore: unused_local_variable
-    String text = visionText.text;
-    for (TextBlock block in visionText.blocks) {
-      // ignore: unused_local_variable
-      final String text = block.text;
-
-      for (TextLine line in block.lines) {
-        print("line: " + line.text);
-        if (line.text.length > 12) {
-          setState(() {
-            this._cardNumber = line.text;
-          });
-        }
-        if (line.text.contains('XE')) {
-          setState(() {
-            this._cardName = line.text;
-          });
-        }
-        if (line.text.contains('/')) {
-          setState(() {
-            this._cardDate = line.text;
-          });
-        }
-      }
-    }
-  }
+//  Future<void> _scanCard() async {
+//    final File imageFile =
+//        await ImagePicker.pickImage(source: ImageSource.gallery);
+//    final FirebaseVisionImage visionImage =
+//        FirebaseVisionImage.fromFile(imageFile);
+//    final TextRecognizer textRecognizer =
+//        FirebaseVision.instance.textRecognizer();
+//    final VisionText visionText =
+//        await textRecognizer.processImage(visionImage);
+//
+//    // ignore: unused_local_variable
+//    String text = visionText.text;
+//    for (TextBlock block in visionText.blocks) {
+//      // ignore: unused_local_variable
+//      final String text = block.text;
+//
+//      for (TextLine line in block.lines) {
+//        print("line: " + line.text);
+//        if (line.text.length > 12) {
+//          setState(() {
+//            this._cardNumber = line.text;
+//          });
+//        }
+//        if (line.text.contains('XE')) {
+//          setState(() {
+//            this._cardName = line.text;
+//          });
+//        }
+//        if (line.text.contains('/')) {
+//          setState(() {
+//            this._cardDate = line.text;
+//          });
+//        }
+//      }
+//    }
+//  }
 
   bool _promo1 = false;
   bool _promo2 = false;
@@ -1815,7 +1815,7 @@ class _CheckoutState extends State<Checkout> {
                           'Scan Card',
                           style: TextStyle(color: Colors.white),
                         ),
-                        onPressed: () => _scanCard(),
+                        onPressed: () => {},
                       ),
                     ),
                     SizedBox(height: 8.0),
